@@ -512,8 +512,7 @@
             function parseJSON() {
 
                 // 0. Initialization
-                selected = 0;
-                hidePropertiesViewAndEdit();
+                selected_cell = 0;
                 
                 // 1. Get the JSON string
                 var jsonInput = document.getElementById("import-field").value;
@@ -525,8 +524,8 @@
                     obj = JSON.parse(jsonInput);
                     
                     // 3. Update the tables 
-                    updateApplicationTable();
-                    addTableRowHandler();
+                    //updateApplicationTable();
+                    //addTableRowHandler();
                     
                 } else {
                     alert("Please provide a valid json string before clicking the Parse button!");
@@ -622,10 +621,10 @@
              */
             function exportJSON() {
                 
-                if (getJobsPerSecAndValidate()){
-                    
+                if (getGeneralFieldsAndValidate()){
+                    alert("Exporting...")
                     // 0. Define the overall values
-                    obj["Number of Applications"] = obj["Applications"].length;
+                    obj["Number of Cells"] = obj["Cells"].length;
                     
                     // 1. Convert the data into a JSON String
                     var json = neatJSON(obj, {'sort':false, 'wrap':40, 'aligned':true, 'around_colon':1 });
@@ -634,6 +633,7 @@
                     document.getElementById("export-field").value = JSON.stringify(obj);
                     document.getElementById("export-area").value = json;
                 }
+                alert("Exporting...")
             }
             
             /**
@@ -1255,25 +1255,20 @@
              * This function is responsible for defining the min and max Jobs per Second
              * of the overall simulation.
              */
-            function getJobsPerSecAndValidate() {
+            function getGeneralFieldsAndValidate() {
                 
                 // 1. Get the values from the fields
-                var min = document.getElementById("jobs-min").value;
-                var max = document.getElementById("jobs-max").value;
+                var max_sim_time = document.getElementById("max-sim-time").value;
+                var update_interval = document.getElementById("update-interval").value;
                 
                 // 2. Check and set or inform          
-                if (min == "" || max == "") {
+                if (max_sim_time == "" || update_interval == "") {
                     alert("Please define the desired min and max jobs per second before exporting the JSON.");
                     return false;
-                }
-                
-                if (parseInt(min) <= parseInt(max)) {
-                    obj["Minimum and Maximum Jobs Per Second"][0] = parseInt(min);
-                    obj["Minimum and Maximum Jobs Per Second"][1] = parseInt(max);
-                    return true;
                 } else {
-                    alert("The min Jobs per second are more than the max.");
-                    return false;
+                    obj["Maximum Simulation Time"] = max_sim_time;
+                    obj["Update Interval"] = update_interval;
+                    return true;
                 }
             }
             
@@ -1283,15 +1278,15 @@
              */
 
             function exportJSONtoFile2() {
-                if(getJobsPerSecAndValidate()) {
+                if(getGeneralFieldsAndValidate()) {
                     document.getElementById("download-anchor").click();
                 }
             }
             
             function exportJSONFile() {
-                if(getJobsPerSecAndValidate()) {
-                   obj["Number of Applications"] = obj["Applications"].length;
-                   var json = neatJSON(obj, {'sort':false, 'wrap':40, 'aligned':true, 'around_colon':1 });
+                if(getGeneralFieldsAndValidate()) {
+                   obj["Number of Cells"] = obj["Cells"].length;
+                   var json = neatJSON(obj, {'sort':false, 'wrap':400, 'aligned':true, 'around_colon':1 });
                    
                    document.getElementById("download-anchor").setAttribute("href", "data:application/octet-stream;," + encodeURIComponent(json));
                     
