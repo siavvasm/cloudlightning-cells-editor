@@ -389,7 +389,7 @@
                 
                 // 0. Import the available hardware types (Click the hidden button)
                 document.getElementById("import-hw-types-button").click();
-                
+              /*  
                 // 1. Load the locally stored data
                 var reloaded = sessionStorage.getItem("reloaded");
                 var current_obj = sessionStorage.getItem("current_obj");
@@ -404,12 +404,14 @@
                     updateApplicationTable();
                     addTableRowHandler();
                 }
+                */
             }
             
             /* 
              * This function is called before reloading the page in order
              * to store the previous work made by the user.
              */ 
+/*
             window.onbeforeunload = function() {
                 
                 // 1. Define that a page refresh has been performed
@@ -419,10 +421,12 @@
                 var current_obj = JSON.stringify(obj);
                 sessionStorage.setItem("current_obj", current_obj);
             }
+*/
             
             // Initialize the global variables
             var obj = {"Maximum Simulation Time":0, "Update Interval":0, "Number of Cells":0, "Cells":[]};  
             var hw_types = []; // The list containing the available Hardware Types
+            var cells = [];
             var selected_cell = 0;
             var selected_hw = 0;
             var save = false;
@@ -523,7 +527,8 @@
                     // 2. Parse the content of the JSON string
                     obj = JSON.parse(jsonInput);
                     
-                    // 3. Update the tables 
+                    // 3. Update the tables
+                    updateCellsList();
                     //updateApplicationTable();
                     //addTableRowHandler();
                     
@@ -548,10 +553,30 @@
                 
                 // Update the tables
                 imported = true; // State that importation is attempted by the user
+                
+                // Get the cells
+;
                 //updateApplicationTable();   
                 //addTableRowHandler();
                 
 
+            }
+            
+            function updateCellsList() {
+                
+                // 0. Copy the cells list
+                cells = JSON.parse(JSON.stringify(obj["Cells"]));
+
+                alert("HERE")
+                // 1. For each cell replace the list of HW_Types with a list of their IDs
+                for (var i = 0; i < cells.length; i++) {
+                    var hwt = cells[i]["HW_types"].slice(0);
+                    var selected_types = [];
+                    for (var j = 0; j < hwt.length; j++) {
+                        selected_types[j] = hwt[j]["HW_type_ID"];
+                    }
+                    cells[i]["HW_types"] = selected_types;
+                }
             }
             
             function hidePropertiesViewAndEdit() {
@@ -590,9 +615,10 @@
                       obj = JSON.parse(textFromFileLoaded);
                       console.log(obj);
                       
-                      // 3. Update everything 
-                      updateApplicationTable();
-                      addTableRowHandler();
+                      // 3. Update everything
+                      updateCellsList()
+                      //updateApplicationTable();
+                      //addTableRowHandler();
                       
                       // 4. Clear the list with the files (to allow re-importation of the same file)
                       document.getElementById('fileToLoad').value = "";
@@ -626,14 +652,47 @@
                     // 0. Define the overall values
                     obj["Number of Cells"] = obj["Cells"].length;
                     
-                    // 1. Convert the data into a JSON String
+                    // 1. Add the info of each HW_Type to each cell
+                    mapHwTypesToCells();
+                    
+                    // 2. Convert the data into a JSON String
                     var json = neatJSON(obj, {'sort':false, 'wrap':40, 'aligned':true, 'around_colon':1 });
 
-                    // 2. Write the string to the desired textfield
+                    // 3. Write the string to the desired textfield
                     document.getElementById("export-field").value = JSON.stringify(obj);
                     document.getElementById("export-area").value = json;
+                    
+                    // 4. Turn the obj into its previous form
+                    //updateCellsList();
+                    //obj["Cells"] = cells;
                 }
                 alert("Exporting...")
+            }
+            
+            function mapHwTypesToCells() {
+                
+                // 0. Update the cells list
+                obj["Cells"] = JSON.parse(JSON.stringify(cells));
+                
+                for (var i = 0; i < cells.length; i++) {
+                    
+                    var currentCell = cells[i];
+                    var hw_types_list = [];
+                    
+                    for (var j = 0; j < currentCell["HW_types"].length; j++) {
+                        //alert(obj["Cells"][i]["CellID"])
+                        alert(currentCell["HW_types"][j])
+                        hw_types_list[j] = hw_types[parseInt(currentCell["HW_types"][j]) - 1];
+                    }
+                    
+                    // TODO: Keep the name of the HW Type in the exported file
+/*
+                    for (var j = 0; j < hw_types_list.length; j++) {
+                        delete(hw_types_list[j]["HW_type_Name"]);
+                    }
+ */                   
+                    obj["Cells"][i]["HW_types"] = hw_types_list;
+                }
             }
             
             /**
@@ -1266,8 +1325,8 @@
                     alert("Please define the desired min and max jobs per second before exporting the JSON.");
                     return false;
                 } else {
-                    obj["Maximum Simulation Time"] = max_sim_time;
-                    obj["Update Interval"] = update_interval;
+                    obj["Maximum Simulation Time"] = parseFloat(max_sim_time);
+                    obj["Update Interval"] = parseFloat(update_interval);
                     return true;
                 }
             }
@@ -1286,12 +1345,20 @@
             function exportJSONFile() {
                 if(getGeneralFieldsAndValidate()) {
                    obj["Number of Cells"] = obj["Cells"].length;
+                    
+                   // 1. Add the info of each HW_Type to each cell
+                   mapHwTypesToCells();
+                    
                    var json = neatJSON(obj, {'sort':false, 'wrap':400, 'aligned':true, 'around_colon':1 });
                    
                    document.getElementById("download-anchor").setAttribute("href", "data:application/octet-stream;," + encodeURIComponent(json));
                     
                    // TODO: Remove this print
-                   console.log(document.getElementById("download-anchor"));                 
+                   console.log(document.getElementById("download-anchor"));
+                    
+                   // Turn the obj into its previous form
+                   //updateCellsList();
+                  
                 }
             }
             
