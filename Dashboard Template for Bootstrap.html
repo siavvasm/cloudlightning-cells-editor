@@ -509,6 +509,41 @@
                 updateHwTypesTable();
             }
             
+            function previousCell() {
+                
+                // 1. Decrement the selected_hw pointer by one
+                selected_cell--;
+                
+                // 2. Check for saturation
+                if (selected_cell < 1) {
+                    selected_cell = 1;
+                }
+                
+                if (cells.length == 0) {
+                    selected_cell = 0;
+                }
+                
+                // 3. Update the table in order to show the details of the selected hw type
+                updateCellsTable();
+            }
+            
+            function nextCell() {
+                
+                // 1. Increment the selected_hw pointer by one
+                selected_cell++;
+                
+                // 2. Check for saturation
+                if (selected_cell > cells.length) {
+                    selected_cell = cells.length;
+                }
+                
+                if (cells.length == 0) {
+                    selected_cell = 0;
+                }
+                // 3. Update the table in order to show the details of the selected hw type
+                updateCellsTable();
+            }
+            
             /**
              * This function is called when the Parse button is clicked, and
              * is responsible for parsing a given JSON string.
@@ -516,7 +551,7 @@
             function parseJSON() {
 
                 // 0. Initialization
-                selected_cell = 0;
+                selected_cell = 1;
                 
                 // 1. Get the JSON string
                 var jsonInput = document.getElementById("import-field").value;
@@ -529,6 +564,7 @@
                     
                     // 3. Update the tables
                     updateCellsList();
+                    updateCellsTable();
                     //updateApplicationTable();
                     //addTableRowHandler();
                     
@@ -545,7 +581,7 @@
             function importJSONFile() {
                 
                 // 0. Initialization
-                selected_cell = 0;
+                selected_cell = 1;
                 //hidePropertiesViewAndEdit();
                 
                 // Import the file content as text
@@ -555,7 +591,7 @@
                 imported = true; // State that importation is attempted by the user
                 
                 // Get the cells
-;
+                updateCellsTable();
                 //updateApplicationTable();   
                 //addTableRowHandler();
                 
@@ -616,7 +652,8 @@
                       console.log(obj);
                       
                       // 3. Update everything
-                      updateCellsList()
+                      updateCellsList();
+                      updateCellsTable();
                       //updateApplicationTable();
                       //addTableRowHandler();
                       
@@ -663,6 +700,7 @@
                     document.getElementById("export-area").value = json;
                     
                     // 4. Turn the obj into its previous form
+                    updateCellsTable();
                     //updateCellsList();
                     //obj["Cells"] = cells;
                 }
@@ -832,6 +870,46 @@
                     i++;
                 }
             }
+            
+            function updateCellsTable() {
+                
+                // 0. Hide the buttons
+                document.getElementById("button-group-2").style.display = "none";
+                
+                // 1. Clean the contents of the table
+                var table = document.getElementById("cells-table");
+                table.innerHTML = "";
+                
+                // 2. Get the selected Hardware Type
+                selObj = cells[selected_cell - 1];
+                
+                // 3. Add one row for each key value found in the application object
+                var i = 1; 
+                for (key in selObj) {
+                    
+                    var tr = document.createElement("tr");
+                    
+                    var t1 = document.createElement("td");
+                    var c1 = document.createTextNode(i)
+                    t1.appendChild(c1);
+                    
+                    var t2 = document.createElement("td");
+                    var c2 = document.createTextNode(key)
+                    t2.appendChild(c2);
+                    
+                    var t3 = document.createElement("td");
+                    var c3 = document.createTextNode(selObj[key])
+                    t3.appendChild(c3);
+                    
+                    tr.appendChild(t1);
+                    tr.appendChild(t2);
+                    tr.appendChild(t3);
+                    
+                    table.appendChild(tr);
+                    
+                    i++;
+                }
+            }
              
             /**
              * This function is responsible for displaying an empty New/Edit Application
@@ -840,18 +918,19 @@
             function newButtonPressed() {
                 
                 // 0. Show the Add button
-                document.getElementById("button-group-2").style.display = "";
+                document.getElementById("cells-buttons").style.display = "none";
+                document.getElementById("button-group-3").style.display = "";
                 document.getElementById("save-button").style.display = "none";
                 document.getElementById("add-button").style.display = "";
                 
                 // 1. Hide the table and display the form
-                document.getElementById("prop-table-full").setAttribute("style","display: none;");
-                document.getElementById("prop-edit").setAttribute("style","");
+                document.getElementById("cells-view").setAttribute("style","display: none;");
+                document.getElementById("cells-edit").setAttribute("style","");
                 
                 // 2. Clear all the text fields
-                clearTextFields();
+                //clearTextFields();
                 clearCheckboxes();
-                resetFields();
+                //resetFields();
             }
             
             /**
@@ -860,14 +939,8 @@
              */
             function clearTextFields() {
                 
-               // Retrieve all the input fields of the Application Form
-               var appForm = document.getElementById("prop-edit");
-               var fields = appForm.getElementsByTagName("input");
-                
-               // Clear all the fields
-               for (i = 0, length = fields.length; i < length; i++) {
-                   fields[i].value = "";
-               }
+                document.getElementById("cell-inter-bw").value = "";
+                document.getElementById("net-bw-ratio").value = "";
                 
             }
             
@@ -879,14 +952,16 @@
             function cancelButtonPressed() {
                 
                 // 0. Hide the buttons
-                document.getElementById("button-group-2").style.display = "none";
+                document.getElementById("button-group-3").style.display = "none";
                 
                 // 0. Clear the checkboxes
                 clearCheckboxes();
+                clearTextFields();
                 
                 // 1. Hide the New Application form and display the table with the selected application contents
-                document.getElementById("prop-edit").setAttribute("style","display: none;");
-                document.getElementById("prop-table-full").setAttribute("style","");
+                document.getElementById("cells-edit").setAttribute("style","display: none;");
+                document.getElementById("cells-view").setAttribute("style","");
+                document.getElementById("cells-buttons").setAttribute("style","");
                 
             }
             
@@ -896,44 +971,40 @@
              * to the array with the other applications. The new application
              * entry is verified before added to the list.
              */
+/**/
             function addButtonPressed() {
                 
                 // 1. Create an empty application
-                var newApp = {};
+                var newCell = {};
                 
                 // 2. Retrieve the key values from the text fields
-                newApp = createApplicationFromFields();
+                newCell = createCellFromFields();
                 
                 // 3. Check if its values are valid and add it to the list
-                if (validNewApplication(newApp)) {
+                if (validNewCell(newCell)) {
                     
                     // Add it to the list
-                    obj["Applications"][obj["Applications"].length] = newApp;
+                    cells[cells.length] = newCell;
                     
                     // 1. Mark the new Application as the selected one
-                    selected = obj["Applications"].length;
+                    selected_cell = cells.length;
                     
                     // 2. Update the Tables
-                    updateApplicationTable();
-                    updatePropertiesTable();
-                    addTableRowHandler();
+                    updateCellsTable();
                     
-                    // 3. Highlight the newly entered app
-                    var table = document.getElementById("app-table");
-                    var rows = table.getElementsByTagName("tr");
-                    rows[rows.length - 1].className = "highlight";
-                    
-                    // 4. Display the table with the details of the newly added application
+                    // 3. Display the table with the details of the newly added cell
                     cancelButtonPressed();
                 } 
 
             }
+
             
             /*
              * This function is responsible for verifying whether the 
              * details of the given applications are valid.
              */
-            function validNewApplication(newApp) {
+/**/ 
+            function validNewCell(newCell) {
                 
                 // 1. Assume that the details are correct
                 valid = true;
@@ -942,109 +1013,17 @@
                 // 2. Check the details
                 i = 1;
                 
-                if (newApp["Available Implementations"].length != 0) {
-                    
-                    if (newApp["Accelerator support"].length != newApp["Available Implementations"].length) {
-                        valid = false;
-                        errorMessage += i + ". Provide " + newApp["Available Implementations"].length + " elements at the Accelerator Support text field. \n";
-                        i++;
-                    }
-
-                    if (newApp["Rho for accelerator execution per Implementation"].length != newApp["Available Implementations"].length) {
-                        valid = false;
-                        errorMessage += i + ". Provide " + newApp["Available Implementations"].length + " elements at the Rho for accelerator execution per Implementation text field. \n";
-                        i++;
-                    }
-                    
+                if (newCell["HW_types"].length != 0) {
+                    // Do nothing ...             
                 } else {
                     valid = false;
                     errorMessage += i + ". Please select at least one from the available implementations. \n";
                     i++;
                 }
                 
-                if (newApp["Type of Actual Utilization (vCPU,Memory,Network)"].length != 3) {
-                    valid = false;
-                    errorMessage += i + ". Provide 3 elements at the Type of Actual Utilization (vCPU,Memory,Network) text field. \n";
-                    i++;
-                }
-                
-                if (newApp["Minimum - Maximum Instructions Per App"][0] > newApp["Minimum - Maximum Instructions Per App"][1]) {
-                    valid = false;
-                    errorMessage += i + ". The minimum instructions per app that you defined are larger than the maximum. \n";
-                    i++;
-                }
-                
-                if (newApp["Minimum - Maximum VMs Per App"][0] > newApp["Minimum - Maximum VMs Per App"][1]) {
-                    valid = false;
-                    errorMessage += i + ". The minimum VMs per app that you defined are larger than the maximum. \n";
-                    i++;
-                }
-                
-                if (newApp["Minimum - Maximum vCPUs Per VM"][0] > newApp["Minimum - Maximum vCPUs Per VM"][1]) {
-                    valid = false;
-                    errorMessage += i + ". The minimum vCPUs per VM that you defined are larger than the maximum. \n";
-                    i++;
-                }
-                
-                if (newApp["Minimum - Maximum Memory Per VM"][0] > newApp["Minimum - Maximum Memory Per VM"][1]) {
-                    valid = false;
-                    errorMessage += i + ". The minimum memory per VM that you defined is larger than the maximum. \n";
-                    i++;
-                }
-                
-                if (newApp["Minimum - Maximum Storage Per VM"][0] > newApp["Minimum - Maximum Storage Per VM"][1]) {
-                    valid = false;
-                    errorMessage += i + ". The minimum storage per VM that you defined is larger than the maximum. \n";
-                    i++;
-                }
-                
-                if (newApp["Minimum - Maximum Network Per VM"][0] > newApp["Minimum - Maximum Network Per VM"][1]) {
-                    valid = false;
-                    errorMessage += i + ". The minimum network per VM that you defined is larger than the maximum. \n";
-                    i++;
-                }
-                
-                if (newApp["Minimum - Maximum Actual vCPU Utilization"][0] > newApp["Minimum - Maximum Actual vCPU Utilization"][1]) {
-                    valid = false;
-                    errorMessage += i + ". The minimum actual vCPU utilization that you defined is larger than the maximum. \n";
-                    i++;
-                }
-                
-                if (newApp["Minimum - Maximum Actual Memory Utilization"][0] > newApp["Minimum - Maximum Actual Memory Utilization"][1]) {
-                    valid = false;
-                    errorMessage += i + ". The minimum actual memory utilization that you defined is larger than the maximum. \n";
-                    i++;
-                }
-                
-                if (newApp["Minimum - Maximum Actual Network Utilization"][0] > newApp["Minimum - Maximum Actual Network Utilization"][1]) {
-                    valid = false;
-                    errorMessage += i + ". The minimum actual network utilization that you defined is larger than the maximum. \n";
-                    i++;
-                }
-
-                for(var k=0; k < newApp["Accelerator support"].length; k++) {
-                    temp = newApp["Accelerator support"][k];
-                    //alert("temp: " + temp);
-                    if ((temp != 0) && (temp != 1)) {
-                        valid = false;
-                        errorMessage += i + ". The Accelerator Support fields accept only integer values between 0 and 1. \n";
-                        i++;
-                        break;
-                    }
-                }
-                
-               for(var k=0; k < newApp["Rho for accelerator execution per Implementation"].length; k++) {
-                    temp = newApp["Rho for accelerator execution per Implementation"][k];
-                    if ((temp < 0) || (temp > 1)) {
-                        valid = false;
-                        errorMessage += i + ". The 'Rho for accelerator execution per Implementation' fields accept only values that lie in the interval [0,1]. \n";
-                        i++;
-                        break;
-                    }
-                }
                 
                 // Check for NaNs
-                var editSection = document.getElementById("prop-edit");
+                var editSection = document.getElementById("cells-edit");
                 var fields = editSection.getElementsByClassName("form-control");
                 
                 for (var k = 0; k < fields.length; k++) {
@@ -1065,7 +1044,7 @@
                 return valid;
                 
             }
-            
+        
             /*
              * This function is responsible for retrieving the IDs of the 
              * implementations that were selected by the user through the
@@ -1106,60 +1085,65 @@
              * This function creates a new Application object from the values
              * provided to the form's fields by the user.
              */
-            function createApplicationFromFields() {
+
+            function createCellFromFields() {
                 
-                // 1. Create an empty application
-                var newApp = {};
+                // 1. Create an empty cell
+                var newCell = {};
                 
                 /*
                  * 2. Add the values from the fields
                  */
+/*  */           
+                // Set the ID of the newly added cell
+                newCell["CellID"] = cells.length + 1;
                 
-                // Set the ID of the newly added application
-                newApp["ApplicationID"] = obj["Applications"].length + 1;
+                // Set the min and max values of the appropriate fields
+                newCell["Cell_Interconnection_Bandwidth"] = parseFloat(document.getElementById("cell-inter-bw").value);
+                newCell["Network_Bandwidth_Overcommitment_ratio"] = parseInt(document.getElementById("net-bw-ratio").value);
                 
                 // Define the selected implementations and their number
                 var availImpl = retrieveAvailImpl();
-                newApp["Number of Available Implementations"] = availImpl.length;
-                newApp["Available Implementations"] = availImpl;
-                
-                // Set the min and max values of the appropriate fields
-                newApp["Minimum - Maximum Instructions Per App"] = [parseFloat(document.getElementById("ipa-min").value), parseFloat(document.getElementById("ipa-max").value)];
-                newApp["Minimum - Maximum VMs Per App"] = [parseInt(document.getElementById("vpa-min").value), parseInt(document.getElementById("vpa-max").value)];
-                newApp["Minimum - Maximum vCPUs Per VM"] = [parseInt(document.getElementById("cpu-min").value), parseInt(document.getElementById("cpu-max").value)];
-                newApp["Minimum - Maximum Memory Per VM"] = [parseInt(document.getElementById("mpv-min").value), parseInt(document.getElementById("mpv-max").value)];
-                newApp["Minimum - Maximum Storage Per VM"] = [parseFloat(document.getElementById("spv-min").value), parseFloat(document.getElementById("spv-max").value)];
-                newApp["Minimum - Maximum Network Per VM"] = [parseFloat(document.getElementById("npv-min").value), parseFloat(document.getElementById("npv-max").value)];
-                newApp["Minimum - Maximum Actual vCPU Utilization"] = [parseFloat(document.getElementById("acu-min").value), parseFloat(document.getElementById("acu-max").value)];
-                newApp["Minimum - Maximum Actual Memory Utilization"] = [parseFloat(document.getElementById("amu-min").value), parseFloat(document.getElementById("amu-max").value)];
-                newApp["Minimum - Maximum Actual Network Utilization"] = [parseFloat(document.getElementById("anu-min").value), parseFloat(document.getElementById("anu-max").value)];
-                
-                // Type of Actual Utilization (vCPU, Memory, Network)
-                var typeActUtil = [];
-                typeActUtil[0] = parseFloat(document.getElementById("vcpu-util").value);
-                typeActUtil[1] = parseFloat(document.getElementById("mem-util").value);
-                typeActUtil[2] = parseFloat(document.getElementById("net-util").value);
-                newApp["Type of Actual Utilization (vCPU,Memory,Network)"] = typeActUtil;
-                          
-                // Accelerator Support
-                var accSupport = [];
-                for(var i = 0; i < availImpl.length; i++) {
-                    accSupport[i] = parseFloat(document.getElementById("acc-sup-imp" + availImpl[i]).value);
-                    //alert(accSupport[i]);
-                }
-                newApp["Accelerator support"] = accSupport;
-                
-                // Rho for accelerator execution per Implementation
-                var rho = [];
-                for(var i = 0; i < availImpl.length; i++) {
-                    rho[i] = parseFloat(document.getElementById("rho-imp" + availImpl[i]).value);
-                }
-                newApp["Rho for accelerator execution per Implementation"] = rho;
+                newCell["Number_of_HW_types"] = availImpl.length;
+                newCell["HW_types"] = availImpl;
                 
                 // 3. Return the Application object
-                return newApp;
+                return newCell;
             }
+
            
+            function deleteCellButtonPressed() {
+                if (selected_cell != 0) {
+                    
+                    // Ask confirmation from the user to avoid accidental deletion
+                    var answer = confirm("This entry will be permanently deleted! Proceed with the action?");
+                    
+                    if (answer) {
+
+                        // 1. Remove the cell object from the array
+                        cells.splice(selected_cell - 1, 1);
+                        
+                        // 2. Update the IDs of the remaining applications
+                        for (var i = 0, len = cells.length; i < len; i++) {
+                            cells[i]["CellID"] = i + 1;
+                        }
+                        
+                        // 3. Display the first Cell (if not empty)
+                        if (cells.length != 0) {
+                            selected_cell = 1;
+                        } else {
+                            selected_cell = 0;
+                        }
+                        
+                        
+                        // 4. Update the tables
+                        updateCellsTable();
+                    }
+                } else {
+                     alert("Please select an application entry to delete!");
+                }
+                
+            }
             /**
              * This function is responsible for deleting a selected application
              * entry from the list with the applications.
@@ -1204,64 +1188,34 @@
             function editButtonPressed() {
                 
                 // Ensure that an application entry is selected
-                if (selected != 0) {
+                if (selected_cell != 0) {
                 
                     // 0. Display the Save button
-                    document.getElementById("button-group-2").style.display = "";
+                    document.getElementById("button-group-3").style.display = "";
                     document.getElementById("save-button").style.display = "";
                     document.getElementById("add-button").style.display = "none";
                     
+                    
                     // 0. Clear the checkboxes and reset the Accelerator Support and Rho fields
                     clearCheckboxes();
-                    resetFields();
+                    //resetFields();
                     
                     // 1. Hide the Properties Table and present the form
-                    document.getElementById("prop-table-full").setAttribute("style","display: none;");
-                    document.getElementById("prop-edit").setAttribute("style","");
+                    document.getElementById("cells-view").setAttribute("style","display: none;");
+                    document.getElementById("cells-edit").setAttribute("style","");
+                    document.getElementById("cells-buttons").style.display = "";
                 
                     // 2. Get the selected application
-                    var selObj = obj["Applications"][selected - 1];
+                    var selObj = cells[selected_cell - 1];
                     
                     // 3. Complete the text fields of the form with the details of the selected application
-                    document.getElementById("ipa-min").value = selObj["Minimum - Maximum Instructions Per App"][0];
-                    document.getElementById("ipa-max").value = selObj["Minimum - Maximum Instructions Per App"][1];
-                    document.getElementById("vpa-min").value = selObj["Minimum - Maximum VMs Per App"][0];
-                    document.getElementById("vpa-max").value = selObj["Minimum - Maximum VMs Per App"][1];
+                    document.getElementById("cell-inter-bw").value = selObj["Cell_Interconnection_Bandwidth"];
+                    document.getElementById("net-bw-ratio").value = selObj["Network_Bandwidth_Overcommitment_ratio"];
                     
-                    // Check the appropriate checkboxes based on the selected implementations
-                    for (var i=0, length = selObj["Available Implementations"].length; i < length; i++) {
-                       document.getElementById("" + selObj["Available Implementations"][i]).checked = true;
+                    // 4. Check the appropriate checkboxes based on the selected implementations
+                    for (var i=0, length = selObj["HW_types"].length; i < length; i++) {
+                       document.getElementById("hw" + selObj["HW_types"][i]).checked = true;
                     }
-                    
-                    // Enable the appropriate Acc Sup and RhO fields based on the selected implementations
-                    refreshFields();
-                    
-                    // Complete the values of the min-max text fields with the appropriate values
-                    document.getElementById("cpu-min").value = selObj["Minimum - Maximum vCPUs Per VM"][0];
-                    document.getElementById("cpu-max").value = selObj["Minimum - Maximum vCPUs Per VM"][1];
-                    document.getElementById("mpv-min").value = selObj["Minimum - Maximum Memory Per VM"][0];
-                    document.getElementById("mpv-max").value = selObj["Minimum - Maximum Memory Per VM"][1];
-                    document.getElementById("spv-min").value = selObj["Minimum - Maximum Storage Per VM"][0];
-                    document.getElementById("spv-max").value = selObj["Minimum - Maximum Storage Per VM"][1];
-                    document.getElementById("npv-min").value = selObj["Minimum - Maximum Network Per VM"][0];
-                    document.getElementById("npv-max").value = selObj["Minimum - Maximum Network Per VM"][1];
-                    document.getElementById("acu-min").value = selObj["Minimum - Maximum Actual vCPU Utilization"][0];
-                    document.getElementById("acu-max").value = selObj["Minimum - Maximum Actual vCPU Utilization"][1];
-                    document.getElementById("amu-min").value = selObj["Minimum - Maximum Actual Memory Utilization"][0];
-                    document.getElementById("amu-max").value = selObj["Minimum - Maximum Actual Memory Utilization"][1];
-                    document.getElementById("anu-min").value = selObj["Minimum - Maximum Actual Network Utilization"][0];
-                    document.getElementById("anu-max").value = selObj["Minimum - Maximum Actual Network Utilization"][1];
-                    
-                    // Update the values of Accelerator Support and Rho fields
-                    for (var i = 0; i < selObj["Available Implementations"].length; i++) {
-                        document.getElementById("acc-sup-imp" + selObj["Available Implementations"][i]).value = selObj["Accelerator support"][i];
-                        document.getElementById("rho-imp" + selObj["Available Implementations"][i]).value = selObj["Rho for accelerator execution per Implementation"][i];
-                    }
-                    
-                    // Update the values of the 'Type of Actual Utilization (vCPU,Memory,Network)' fields
-                    document.getElementById("vcpu-util").value = selObj["Type of Actual Utilization (vCPU,Memory,Network)"][0];
-                    document.getElementById("mem-util").value = selObj["Type of Actual Utilization (vCPU,Memory,Network)"][1];
-                    document.getElementById("net-util").value = selObj["Type of Actual Utilization (vCPU,Memory,Network)"][2];
                     
                 } else {
                     alert("Please select an application first!");
@@ -1277,30 +1231,23 @@
                 save = true;
                 
                 // 1. Create a new Application object
-                var newApp = {}
+                var newCell = {}
                 
                 // 2. Retrieve the values of the Application from the fields and set its ID
-                newApp = createApplicationFromFields();
-                newApp["ApplicationID"] = obj["Applications"][selected - 1]["ApplicationID"];
+                newCell = createCellFromFields();
+                newCell["CellID"] = cells[selected_cell - 1]["CellID"];
                 
                 // 3. Check if it is valid and update the selected application
-                if (validNewApplication(newApp)) {
+                if (validNewCell(newCell)) {
                     
                     // Update the selected object
-                    obj["Applications"][selected - 1] = newApp;
+                    cells[selected_cell - 1] = newCell;
                     
                     // Update the Tables
-                    updateApplicationTable();
-                    updatePropertiesTable();
-                    addTableRowHandler();
+                    updateCellsTable();
                     
                     // TODO: Remove this print
-                    console.log(newApp)
-                    
-                    // Highlight the selected app
-                    var table = document.getElementById("app-table");
-                    var rows = table.getElementsByTagName("tr");
-                    rows[selected - 1].className = "highlight";
+                    //console.log(newApp)
                     
                     // Display the table
                     cancelButtonPressed();
@@ -1430,30 +1377,117 @@
        </script>
                 
                 
-               <!-- Application Name Section -->    
-                <!-- div class="col-md-3 " -->
-               <h2 class="sub-header" align="left">Applications</h2>
+               <!-- Cells View and Edit Section -->    
+               <!-- div class="col-md-3 " -->
+               <h2 class="sub-header" align="left">Cells</h2>
             
-               <div class="table-responsive" >
-                  <table class="table">
+               <div class="table-responsive" id="cells-view">
+                  <table class="table table-striped">
                      <thead>
                         <tr>
                            <th>#</th>
-                           <th>Name</th>
+                           <th>Key</th>
+                           <th>Value</th>
                         </tr>
                      </thead>
-                     <tbody id="app-table">
-                         
+                     <tbody id="cells-table">
+
                      </tbody>
                   </table>
-               <!-- /div -->      
-            </div>
-                
+               </div>
+
+        <div class="row" id="cells-buttons">              
             <div id="button-group" align="right" >
+                <button id="previous-cell" class="btn btn-default" onclick="previousCell()" align="left"><</button>
+                <button id="next-cell" class="btn btn-default" onclick="nextCell()" align="left">></button>
                 <button id="edit-button" class="btn btn-default" onclick="editButtonPressed()">Edit</button>
-                <button id="delete-button" class="btn btn-default" onclick="deleteButtonPressed()">Delete</button>
+                <button id="delete-button" class="btn btn-default" onclick="deleteCellButtonPressed()">Delete</button>
                 <button id="new-button" class="btn btn-default" onclick="newButtonPressed()">New</button>
             </div>
+        </div>   
+            
+            
+            
+   <!-- New and Edit Cell Form -->                
+   <div class="row" id="cells-edit" style="display: none;" align="center">
+       <div class="col-xs-12 form-group" id="av-im">
+            <div>
+                <label>Available Hardware Types</label>
+            </div>
+
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited" onclick="adjustPopUp()">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-left" style="height:110px;">
+										<h3>Available Implementations</h3>
+										<p>Provide which hardware type the application can be executed. </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+  
+            <div class="row">
+                    <!-- Available Implementation Checkboxes -->
+                    <label for="one" style="margin: 10px">
+                     <input type="checkbox" id="hw1" value="1" onclick="refreshFields()"/>CPU</label>
+                    <label for="two" style="margin: 10px">
+                     <input type="checkbox" id="hw2" value="2" style="margin: 10px 2px;" onclick="refreshFields()"/>CPU+GPU</label>
+                    <label for="three" style="margin: 10px">
+                     <input type="checkbox" id="hw3" value="3" onclick="refreshFields()"/>CPU+DFE</label>
+                    <label for="four" style="margin: 10px">
+                     <input type="checkbox" id="hw4" value="4" onclick="refreshFields()"/>CPU+MIC</label>
+            </div>
+        </div>
+       
+      
+        <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">Cell Interconnection Bandwidth</label>
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" placeholder="Cell_Interconnection_Bandwidth" style="text-align:center;" type="text" id="cell-inter-bw"/>
+            </div>
+        </div>
+           
+        <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">Network Bandwidth Overcommitment ratio</label>
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" placeholder="Network Bandwidth Overcommitment ratio" style="text-align:center;" type="text" id="net-bw-ratio"/>
+            </div>
+        </div>         
+
+   </div>            
+            
+            
+    <!-- Save, Add and Cancel Buttons -->
+    <div id="button-group-3" align="right" id="prop-edit-buttons" style="display:none">
+        <button id="save-button" class="btn btn-default" onclick="saveButtonPressed()">Save</button>
+        <button id="add-button" class="btn btn-default" onclick="addButtonPressed()">Add</button>
+        <button id="cancel-button" class="btn btn-default" onclick="cancelButtonPressed()">Cancel</button>
+    </div>       
+            
+            
+            
+            
+            
+            
+            
+            
+            
+    
+            
+            
                 
                <!-- Properties Section   -->  
                <h2 class="sub-header" align="left">Available Hardware Types</h2>
@@ -1478,6 +1512,27 @@
                 <button id="previous-button" class="btn btn-default" onclick="previousHwType()"><</button>
                 <button id="next-button" class="btn btn-default" onclick="nextHwType()">></button>
                </div>
+                   
+                   
+                   
+
+                   
+                   
+                   
+                   
+                   
+                   
+                   
+                   
+                   
+                   
+                   
+                   
+                   
+                   
+                   
+                   
+                   
     <!-- New and Edit Application Form -->
     <div class="row" id="prop-edit" style="display: none;" align="center">
 
