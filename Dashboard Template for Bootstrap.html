@@ -1878,24 +1878,28 @@
              
 <!-- Section 4: General Properties Section -->       
 <h2 class="sub-header" align="left">General Properties</h2>
-    <br>
-        <label  style="font-family: Calibri; font-size:20px"> Please define the minimum and maximum jobs per second: </label>
-    <br>        
-    <br/>  
-             
-    <div class="col-xs-12 form-group">
-        <div class="row" align="center">
-            <div class="col-xs-3 col-sm-3" style="visible:false">
-                <input class="form-control" placeholder="min" style="text-align:center;" type="hidden" id="temp"/>
+<div class="row" id="prop-edit" align="center">
+        <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">Maximum Simulation Time</label>
             </div>
-            <div class="col-xs-3 col-sm-3">
-                <input class="form-control" placeholder="min" style="text-align:center;" type="number" min="0" id="jobs-min"/>
-            </div>
-            <div class="col-xs-3 col-sm-3">
-                <input class="form-control" placeholder="max" style="text-align:center;" type="number" min="0" id="jobs-max"/>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" placeholder="Maximum Simulation Time" style="text-align:center;" type="text" id="max-sim-time"/>
             </div>
         </div>
-    </div>            
+           
+        <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">Update Interval</label>
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" placeholder="Update Interval" style="text-align:center;" type="text" id="update-interval"/>
+            </div>
+        </div>         
+
+</div>
 <br/><br/><br/>
 
 <!-- Section 5: Export JSON section -->
