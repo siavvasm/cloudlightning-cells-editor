@@ -1203,7 +1203,7 @@
                     // 1. Hide the Properties Table and present the form
                     document.getElementById("cells-view").setAttribute("style","display: none;");
                     document.getElementById("cells-edit").setAttribute("style","");
-                    document.getElementById("cells-buttons").style.display = "";
+                    document.getElementById("cells-buttons").style.display = "none";
                 
                     // 2. Get the selected application
                     var selObj = cells[selected_cell - 1];
@@ -1396,7 +1396,7 @@
                   </table>
                </div>
 
-        <div class="row" id="cells-buttons">              
+        <div id="cells-buttons">
             <div id="button-group" align="right" >
                 <button id="previous-cell" class="btn btn-default" onclick="previousCell()" align="left"><</button>
                 <button id="next-cell" class="btn btn-default" onclick="nextCell()" align="left">></button>
@@ -2032,7 +2032,7 @@
                 
                 <!-- Trick for exporting a file with a desired name and in the desired format -->
                 <button id="export-file-button" class="btn btn-default" onclick="exportJSONtoFile2()" download="file.txt">Export Json to File</button>
-                <a id="download-anchor" onclick="exportJSONFile()" download="AppData.json" style="display:none;">Hello!</a> 
+                <a id="download-anchor" onclick="exportJSONFile()" download="CellData.json" style="display:none;">Hello!</a> 
                 
                 <br><br>
                 <hr/>
