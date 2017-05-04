@@ -326,14 +326,7 @@
 
    </head>
     
-    
-    
-    
-    
-    
-    
-    
-    
+
    <body style="cursor: initial;">
       <nav class="navbar navbar-inverse navbar-fixed-top" style="background-color:#555">
          <div class="container-fluid">
@@ -346,40 +339,33 @@
          </div>
       </nav>     
        
+
+       
       <div class="container-fluid">
          <div class="row">
             <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-1 main" align="center">
                
-               <!-- Section 1 -->
+<!-- Section 1: Import JSON file -->
+                
                <h1 class="page-header">Cloudlightning - Cells JSON Editor</h1>
-               <!--label style="font-family: Calibri; font-size:40px" >TQI</label-->
                 <br>
                 <label style="font-family: Calibri; font-size:20px"> Please provide the JSON string or click the import button to load the JSON file that you would like to parse its contnet: </label>
                 <br><br>
-                 <input type="text" id="import-field" class="form-control"  placeholder= "JSON string or file name" width="100px" vspace="0" style="max-width:300px;margin:auto;margin-top:10px;text-align:center;">
-                
-                <!-- div id="radio-buttons">
-                    String: <input type="radio" name="input-type" value="String" id="string-radio" onclick="stringRadioButtonClicked()" checked>
-                    File: <input type="radio" name="input-type" value="File" id="file-radio" onclick="fileRadioButtonClicked()">
-                </div -->
-                
+                <input type="text" id="import-field" class="form-control"  placeholder= "JSON string or file name" width="100px" vspace="0" style="max-width:300px;margin:auto;margin-top:10px;text-align:center;">  
                 <br>
                 <div id="button-group">
-                    <!-- button id="import-button" class="btn btn-default" onclick="importJSON()">Import</button -->
                     <button id="parse-button" class="btn btn-default" onclick="parseJSON()">Parse</button>
                     <button id="select-button" class="btn btn-default" onclick="document.getElementById('fileToLoad').click();">Import</button>
                     <input type="file" id="fileToLoad" style="display:none;" onchange="importJSONFile()">
-                    <button id="import-hw-types-button" class="btn btn-default" onclick="importHwTypesButtonPressed()" style="display:none;">Import HW Types</button>
-                    
-                    <!-- button id="import-button" class="btn btn-default" onclick="importJSONFile()" style="display:none;">Import</button-->
-                    
+                    <button id="import-hw-types-button" class="btn btn-default" onclick="importHwTypesButtonPressed()" style="display:none;">Import HW Types</button>          
                 </div>
                     
                 <br><br>
                 
                 <hr/>
-                              
-        <script>
+                
+<!-- The script responsible for the overall functionality of the web page -->                              
+<script>
             
             /*
              *  This function is called whenever the page is loaded in order 
@@ -389,7 +375,7 @@
                 
                 // 0. Import the available hardware types (Click the hidden button)
                 document.getElementById("import-hw-types-button").click();
-              /*  */
+/**/
                 // 1. Load the locally stored data
                 var reloaded = sessionStorage.getItem("reloaded");
                 var current_obj = sessionStorage.getItem("current_obj");
@@ -407,9 +393,7 @@
                         selected_cell = 1;                      
                     }
                     updateCellsTable();
-
                 }
-                
             }
             
             /* 
@@ -445,7 +429,6 @@
              * Parse the file that contains the Hardware Types that are available by 
              * the Cloudlightning simulator.
              */
-            
             function parseHwTypesJSONFile(file) {
   
                 // 0. The parsed JSON to be returned
@@ -610,7 +593,6 @@
                 // 0. Copy the cells list
                 cells = JSON.parse(JSON.stringify(obj["Cells"]));
 
-                alert("HERE")
                 // 1. For each cell replace the list of HW_Types with a list of their IDs
                 for (var i = 0; i < cells.length; i++) {
                     var hwt = cells[i]["HW_types"].slice(0);
@@ -692,7 +674,7 @@
             function exportJSON() {
                 
                 if (getGeneralFieldsAndValidate()){
-                    alert("Exporting...")
+
                     // 0. Define the overall values
                     obj["Number of Cells"] = obj["Cells"].length;
                     
@@ -711,9 +693,16 @@
                     //updateCellsList();
                     //obj["Cells"] = cells;
                 }
-                alert("Exporting...")
+               
             }
             
+            /** 
+             * This function is responsible for constructing the final JSON file
+             * by adding the appropriate Hardware Type objects to the 
+             * hardware types list of each Cell. In particular, it iterates 
+             * through the cells array, and for each selected Hardware_Type_ID
+             * it assigns the original Hardware Type object.
+             */
             function mapHwTypesToCells() {
                 
                 // 0. Update the cells list
@@ -725,8 +714,6 @@
                     var hw_types_list = [];
                     
                     for (var j = 0; j < currentCell["HW_types"].length; j++) {
-                        //alert(obj["Cells"][i]["CellID"])
-                        alert(currentCell["HW_types"][j])
                         hw_types_list[j] = hw_types[parseInt(currentCell["HW_types"][j]) - 1];
                     }
                     
@@ -834,8 +821,8 @@
             }            
                       
             /*
-             * This function is responsible for updating the content of the Properties html table
-             * with the details of the Application object that the "selected" global variable
+             * This function is responsible for updating the content of the Hardware Types html table
+             * with the details of the Hardware Type object that the "selected_hw" global variable
              * points to.         
              */
             function updateHwTypesTable() {
@@ -878,6 +865,11 @@
                 }
             }
             
+            /*
+             * This function is responsible for updating the content of the Cells html table
+             * with the details of the Cell object that the "selected_cell" global variable
+             * points to.         
+             */
             function updateCellsTable() {
                 
                 // 0. Hide the buttons
@@ -919,7 +911,7 @@
             }
              
             /**
-             * This function is responsible for displaying an empty New/Edit Application
+             * This function is responsible for displaying an empty New/Edit Cell
              * form.
              */
             function newButtonPressed() {
@@ -942,7 +934,7 @@
             
             /**
              * This function is responsible for clearing the fields 
-             * of the New/Edit Application form.
+             * of the New/Edit Cell form.
              */
             function clearTextFields() {
                 
@@ -954,7 +946,7 @@
             /**
              * This fucntion is called when the Cancel button is pressed
              * in order to present the table with the details of the 
-             * Application entries.
+             * Cell entries.
              */
             function cancelButtonPressed() {
                 
@@ -974,11 +966,10 @@
             
             /** 
              * This function is called when the Add button is pressed and 
-             * it is responsible for adding the new Application entry
-             * to the array with the other applications. The new application
+             * it is responsible for adding the new Cell entry
+             * to the array with the other Cells. The new Cell
              * entry is verified before added to the list.
              */
-/**/
             function addButtonPressed() {
                 
                 // 1. Create an empty application
@@ -1008,9 +999,8 @@
             
             /*
              * This function is responsible for verifying whether the 
-             * details of the given applications are valid.
+             * details of the given cell are valid.
              */
-/**/ 
             function validNewCell(newCell) {
                 
                 // 1. Assume that the details are correct
@@ -1089,10 +1079,9 @@
             }
             
             /*
-             * This function creates a new Application object from the values
+             * This function creates a new Cell object from the values
              * provided to the form's fields by the user.
              */
-
             function createCellFromFields() {
                 
                 // 1. Create an empty cell
@@ -1100,8 +1089,7 @@
                 
                 /*
                  * 2. Add the values from the fields
-                 */
-/*  */           
+                 */         
                 // Set the ID of the newly added cell
                 newCell["CellID"] = cells.length + 1;
                 
@@ -1151,6 +1139,7 @@
                 }
                 
             }
+           
             /**
              * This function is responsible for deleting a selected application
              * entry from the list with the applications.
@@ -1189,7 +1178,7 @@
             }
             
             /** 
-             * This function is responsible for displaying the New/Edit Application form
+             * This function is responsible for displaying the New/Edit Cell form
              * with its fields containing the details of the selected application entry.
              */
             function editButtonPressed() {
@@ -1289,7 +1278,6 @@
              * This functions are responsible for exporting the final applications list
              * in a JSON format.
              */
-
             function exportJSONtoFile2() {
                 if(getGeneralFieldsAndValidate()) {
                     document.getElementById("download-anchor").click();
@@ -1379,29 +1367,28 @@
                     document.getElementById("rho-imp" + i).value = "";
                 }
             }
-            
-
-       </script>
+</script>
                 
                 
-               <!-- Cells View and Edit Section -->    
-               <!-- div class="col-md-3 " -->
-               <h2 class="sub-header" align="left">Cells</h2>
-            
-               <div class="table-responsive" id="cells-view">
-                  <table class="table table-striped">
-                     <thead>
-                        <tr>
-                           <th>#</th>
-                           <th>Key</th>
-                           <th>Value</th>
-                        </tr>
-                     </thead>
-                     <tbody id="cells-table">
+<!-- Section 2: Cells View and Edit Section -->  
+                
+        <!-- View Cell InformationTable -->
+        <h2 class="sub-header" align="left">Cells</h2>
 
-                     </tbody>
-                  </table>
-               </div>
+        <div class="table-responsive" id="cells-view">
+          <table class="table table-striped">
+             <thead>
+                <tr>
+                   <th>#</th>
+                   <th>Key</th>
+                   <th>Value</th>
+                </tr>
+             </thead>
+             <tbody id="cells-table">
+
+             </tbody>
+          </table>
+        </div>
 
         <div id="cells-buttons">
             <div id="button-group" align="right" >
@@ -1415,8 +1402,8 @@
             
             
             
-   <!-- New and Edit Cell Form -->                
-   <div class="row" id="cells-edit" style="display: none;" align="center">
+       <!-- New and Edit Cell Form -->                
+       <div class="row" id="cells-edit" style="display: none;" align="center">
        <div class="col-xs-12 form-group" id="av-im">
             <div>
                 <label>Available Hardware Types</label>
@@ -1510,521 +1497,38 @@
             </div>
         </div>         
 
-   </div>            
+       </div>            
             
+       <!-- Save, Add and Cancel Buttons -->
+       <div id="button-group-3" align="right" id="prop-edit-buttons" style="display:none">
+           <button id="save-button" class="btn btn-default" onclick="saveButtonPressed()">Save</button>
+           <button id="add-button" class="btn btn-default" onclick="addButtonPressed()">Add</button>
+           <button id="cancel-button" class="btn btn-default" onclick="cancelButtonPressed()">Cancel</button>
+       </div>       
             
-    <!-- Save, Add and Cancel Buttons -->
-    <div id="button-group-3" align="right" id="prop-edit-buttons" style="display:none">
-        <button id="save-button" class="btn btn-default" onclick="saveButtonPressed()">Save</button>
-        <button id="add-button" class="btn btn-default" onclick="addButtonPressed()">Add</button>
-        <button id="cancel-button" class="btn btn-default" onclick="cancelButtonPressed()">Cancel</button>
-    </div>       
+                    
+<!-- Section 3: Available Hardware Types Section -->  
+    <h2 class="sub-header" align="left">Available Hardware Types</h2>
             
-            
-            
-            
-            
-            
-            
-            
-            
-    
-            
-            
-                
-               <!-- Properties Section   -->  
-               <h2 class="sub-header" align="left">Available Hardware Types</h2>
-               <!-- h2 class="sub-header" style="display: inline-block;" align="left">Available Hardware Types</h2 -->
-
-               <div class="table-responsive">
-                  <table class="table table-striped" id="hw-types-table-full">
-                     <thead>
-                        <tr>
-                           <th>#</th>
-                           <th>Key</th>
-                           <th>Value</th>
-                        </tr>
-                     </thead>
-                     <tbody id="hw-types-table">
-
-                     </tbody>
-                  </table>
-               </div>
-                
-               <div id="button-group" align="right" >
-                <button id="previous-button" class="btn btn-default" onclick="previousHwType()"><</button>
-                <button id="next-button" class="btn btn-default" onclick="nextHwType()">></button>
-               </div>
-                   
-                   
-                   
-
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-    <!-- New and Edit Application Form -->
-    <div class="row" id="prop-edit" style="display: none;" align="center">
-
-        <div class="col-xs-12 form-group" id="av-im">
-            <div>
-            <label>Available Implementations</label>
-            </div>
-
- <div class="features-left">
-                        <!-- Icon -->
-						<div class="icon-md icon-color">
-							<div class="cd-points-container points-enlarged points-pulsing">
-								<div class="cd-single-point visited" onclick="adjustPopUp()">
-									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-left" style="height:110px;">
-										<h3>Available Implementations</h3>
-										<p>Provide which hardware type the application can be executed. </p>
-										<a class="cd-close-info cd-img-replace">Close</a>
-									</div>
-								</div>
-								
-							</div>
-						</div>
-						<!-- /End Icon -->
-            </div>
-  
-<div class="row">
-        <!-- Available Implementation Checkboxes -->
-        <label for="one" style="margin: 10px">
-         <input type="checkbox" id="1" value="1" onclick="refreshFields()"/>CPU</label>
-        <label for="two" style="margin: 10px">
-         <input type="checkbox" id="2" value="2" style="margin: 10px 2px;" onclick="refreshFields()"/>CPU+GPU</label>
-        <label for="three" style="margin: 10px">
-         <input type="checkbox" id="3" value="3" onclick="refreshFields()"/>CPU+DFE</label>
-        <label for="four" style="margin: 10px">
-         <input type="checkbox" id="4" value="4" onclick="refreshFields()"/>CPU+MIC</label>
-</div>
-        </div>
-           
-        <div class="col-xs-6 form-group">
-            <div>
-                <label class="col-xs-12">Instructions Per App</label>
-            </div>
-            
-            <div class="features-left">
-                        <!-- Icon -->
-						<div class="icon-md icon-color">
-							<div class="cd-points-container points-enlarged points-pulsing">
-								<div class="cd-single-point visited">
-									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-right">
-										<h3>Instructions per App</h3>
-										<p>The number of instructions is computed by multiplying the performance of a task (execution time), by the computational capability of the processor in MIPS. Provide a double data type for each field denoting the smallest and the largest number of instructions (e.g. 1386228336.48, 5544913345.92).</p>
-										<a class="cd-close-info cd-img-replace">Close</a>
-									</div>
-								</div>
-								
-							</div>
-						</div>
-						<!-- /End Icon -->
-            </div>
-            
-            <div class="row">
-                <div class="col-xs-12 col-sm-6">
-                    <input class="form-control" placeholder="min" style="text-align:center;" type="text" id="ipa-min"/>
-                </div>
-                <div class="col-xs-12 col-sm-6">
-                    <input class="form-control" placeholder="max" style="text-align:center;" type="text" id="ipa-max"/>
-                </div>
-            </div>
-        </div>         
+    <div class="table-responsive">
+        <table class="table table-striped" id="hw-types-table-full">
+            <thead>
+                <tr>
+                   <th>#</th>
+                   <th>Key</th>
+                   <th>Value</th>
+                </tr>
+            </thead>
         
-        <!-- div class="col-xs-6 form-group">
-            <label>Number of Implementations</label>
-            <input class="form-control" type="text" placeholder="Number of Implementations" style="text-align:center;" id="num-impl"/>
-        </div -->
-    
-        <div class="col-xs-6 form-group">
-            <div>
-                <label class="col-xs-12">VMs Per App</label>
-            </div>
-                        
-            <div class="features-left">
-                        <!-- Icon -->
-						<div class="icon-md icon-color">
-							<div class="cd-points-container points-enlarged points-pulsing">
-								<div class="cd-single-point visited">
-									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-left" style="height:150px;">
-										<h3>VMs per App</h3>
-										<p>Provide an integer for each field denoting the smallest and the largest number of VMs required to execute the application (e.g. 1, 16).</p>
-										<a class="cd-close-info cd-img-replace">Close</a>
-									</div>
-								</div>
-								
-							</div>
-						</div>
-						<!-- /End Icon -->
-            </div>
-            <div class="row">
-                <div class="col-xs-12 col-sm-6">
-                    <input class="form-control" placeholder="min" style="text-align:center;" type="number" min="0" id="vpa-min"/>
-                </div>
-                <div class="col-xs-12 col-sm-6">
-                    <input class="form-control" placeholder="max" style="text-align:center;" type="number" min="0" id="vpa-max"/>
-                </div>
-            </div>
-        </div>
-        
-           
-        <div class="col-xs-6 form-group">
-            <div>
-                <label class="col-xs-12">vCPUs Per VM</label>
-            </div>
-            
-            <div class="features-left">
-                        <!-- Icon -->
-						<div class="icon-md icon-color">
-							<div class="cd-points-container points-enlarged points-pulsing">
-								<div class="cd-single-point visited">
-									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-right" style="height:150px;">
-										<h3>vCPUs Per VM</h3>
-										<p>Provide an integer for each field denoting the smallest and the largest number of processors units required per VM per application (e.g. 4, 8)</p>
-										<a class="cd-close-info cd-img-replace">Close</a>
-									</div>
-								</div>
-								
-							</div>
-						</div>
-						<!-- /End Icon -->
-            </div>
-            
-            <div class="row">
-                <div class="col-xs-12 col-sm-6">
-                    <input class="form-control" placeholder="min" style="text-align:center;" type="number" min="0" id="cpu-min"/>
-                </div>
-                <div class="col-xs-12 col-sm-6">
-                    <input class="form-control" placeholder="max" style="text-align:center;" type="number" min="0" id="cpu-max"/>
-                </div>
-            </div>
-        </div>
-           
-        <div class="col-xs-6 form-group">
-            <div>
-                <label class="col-xs-12">Memory Per VM</label>
-            </div>
-            
-            <div class="features-left">
-                        <!-- Icon -->
-						<div class="icon-md icon-color">
-							<div class="cd-points-container points-enlarged points-pulsing">
-								<div class="cd-single-point visited">
-									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-left" style="height:150px;">
-										<h3>Memory Per VM</h3>
-										<p>Provide an integer for each field denoting the smallest and the largest number of memory in GBytes required per VM per application (e.g. 4, 8).</p>
-										<a class="cd-close-info cd-img-replace">Close</a>
-									</div>
-								</div>
-								
-							</div>
-						</div>
-						<!-- /End Icon -->
-            </div>
-            
-            <div class="row">
-                <div class="col-xs-12 col-sm-6">
-                    <input class="form-control" placeholder="min" style="text-align:center;" type="number" min="0" id="mpv-min"/>
-                </div>
-                <div class="col-xs-12 col-sm-6">
-                    <input class="form-control" placeholder="max" style="text-align:center;" type="number" min="0" id="mpv-max"/>
-                </div>
-            </div>
-        </div>
-           
-        <div class="col-xs-6 form-group">
-            <div>
-                <label class="col-xs-12">Storage Per VM</label>
-            </div>
-            
-            <div class="features-left">
-                        <!-- Icon -->
-						<div class="icon-md icon-color">
-							<div class="cd-points-container points-enlarged points-pulsing">
-								<div class="cd-single-point visited">
-									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-right" style="height:150px;">
-										<h3>Storage Per VM</h3>
-										<p>Provide a double data type for each field denoting the smallest and the largest number of disk space in TBytes required per VM per application (e.g. 0.02, 0.04).</p>
-										<a class="cd-close-info cd-img-replace">Close</a>
-									</div>
-								</div>
-								
-							</div>
-						</div>
-						<!-- /End Icon -->
-            </div>
-            <div class="row">
-                <div class="col-xs-12 col-sm-6">
-                    <input class="form-control" placeholder="min" style="text-align:center;" type="text" id="spv-min"/>
-                </div>
-                <div class="col-xs-12 col-sm-6">
-                    <input class="form-control" placeholder="max" style="text-align:center;" type="text" id="spv-max"/>
-                </div>
-            </div>
-        </div>
-           
-        <div class="col-xs-6 form-group">
-            <div>
-                <label class="col-xs-12">Network Per VM</label>
-            </div>
-            
-            <div class="features-left">
-                        <!-- Icon -->
-						<div class="icon-md icon-color">
-							<div class="cd-points-container points-enlarged points-pulsing">
-								<div class="cd-single-point visited">
-									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-left" style="height:130px;">
-										<h3>Network Per VM</h3>
-										<p>Provide minimum and the maximum network bandwidth in Gbps required per application (e.g. 0.1, 0.2).</p>
-										<a class="cd-close-info cd-img-replace">Close</a>
-									</div>
-								</div>
-								
-							</div>
-						</div>
-						<!-- /End Icon -->
-            </div>
-            
-            <div class="row">
-                <div class="col-xs-12 col-sm-6">
-                    <input class="form-control" placeholder="min" style="text-align:center;" type="text" id="npv-min"/>
-                </div>
-                <div class="col-xs-12 col-sm-6">
-                    <input class="form-control" placeholder="max" style="text-align:center;" type="text" id="npv-max"/>
-                </div>
-            </div>
-        </div>
+            <tbody id="hw-types-table">
 
-        <!--div class="col-xs-6 form-group">
-            <label>Type of Actual Utilization (vCPU,Memory,Network)</label>
-            <input class="form-control" type="text" placeholder="Actual Utilization" style="text-align:center;" id="type-util"/>
-        </div-->
-                
-        <div class="col-xs-6 form-group">
-            <div>
-                <label class="col-xs-12">Type of Actual Utilization (vCPU,Memory,Network)</label>
-            </div>
-            
-            <div class="features-left">
-                        <!-- Icon -->
-						<div class="icon-md icon-color">
-							<div class="cd-points-container points-enlarged points-pulsing">
-								<div class="cd-single-point visited">
-									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-right">
-										<h3>Type of Actual Utilization</h3>
-										<p>The type of actual utilization can be chosen to be a constant number or a regression model based on random numbers between the predefined intervals. If the number is closer to one then more instructions have to be carried out, thus more processing units, memory, network, etc. are required. (e.g. 1)</p>
-										<a class="cd-close-info cd-img-replace">Close</a>
-									</div>
-								</div>
-								
-							</div>
-						</div>
-						<!-- /End Icon -->
-            </div>
-            
-            <div class="row">
-                <div class="col-xs-4 col-sm-4">
-                    <input class="form-control" placeholder="vCPU" style="text-align:center;" type="text" id="vcpu-util"/>
-                </div>
-                <div class="col-xs-4 col-sm-4">
-                    <input class="form-control" placeholder="Memory" style="text-align:center;" type="text" id="mem-util"/>
-                </div>
-                <div class="col-xs-4 col-sm-4">
-                    <input class="form-control" placeholder="Network" style="text-align:center;" type="text" id="net-util"/>
-                </div>
-            </div>
-        </div>
+            </tbody>
+          </table>
+    </div>
 
-        <div class="col-xs-6 form-group">
-            <div>
-                <label class="col-xs-12">Actual vCPU Utilization</label>
-            </div>
-            
-            <div class="features-left">
-                        <!-- Icon -->
-						<div class="icon-md icon-color">
-							<div class="cd-points-container points-enlarged points-pulsing">
-								<div class="cd-single-point visited">
-									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-left" style="height:110px;">
-										<h3>Actual vCPU Utilization</h3>
-										<p>Provide the actual utilization of the processors units (e.g. 1).</p>
-										<a class="cd-close-info cd-img-replace">Close</a>
-									</div>
-								</div>
-								
-							</div>
-						</div>
-						<!-- /End Icon -->
-            </div>
-            
-            <div class="row">
-                <div class="col-xs-12 col-sm-6">
-                    <input class="form-control" placeholder="min" style="text-align:center;" type="text" id="acu-min"/>
-                </div>
-                <div class="col-xs-12 col-sm-6">
-                    <input class="form-control" placeholder="max" style="text-align:center;" type="text" id="acu-max"/>
-                </div>
-            </div>
-        </div>
-           
-        <div class="col-xs-6 form-group">
-            <div>
-                <label class="col-xs-12">Actual Memory Utilization</label>
-            </div>
-            
-            <div class="features-left">
-                        <!-- Icon -->
-						<div class="icon-md icon-color">
-							<div class="cd-points-container points-enlarged points-pulsing">
-								<div class="cd-single-point visited">
-									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-right" style="height:110px;">
-										<h3>Actual Memory Utilization</h3>
-										<p>Provide the actual memory utilization of the application (e.g. 1). </p>
-										<a class="cd-close-info cd-img-replace">Close</a>
-									</div>
-								</div>
-								
-							</div>
-						</div>
-						<!-- /End Icon -->
-            </div>
-            <div class="row">
-                <div class="col-xs-12 col-sm-6">
-                    <input class="form-control" placeholder="min" style="text-align:center;" type="text" id="amu-min"/>
-                </div>
-                <div class="col-xs-12 col-sm-6">
-                    <input class="form-control" placeholder="max" style="text-align:center;" type="text" id="amu-max"/>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xs-6 form-group">
-            <div>
-                <label class="col-xs-12">Actual Network Utilization</label>
-            </div>
-            
-            <div class="features-left">
-                        <!-- Icon -->
-						<div class="icon-md icon-color">
-							<div class="cd-points-container points-enlarged points-pulsing">
-								<div class="cd-single-point visited">
-									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-left" style="height:110px;">
-										<h3>Actual Network Utilization</h3>
-										<p>Provide the actual network bandwidth utilization of the application (e.g. 1).</p>
-										<a class="cd-close-info cd-img-replace">Close</a>
-									</div>
-								</div>
-								
-							</div>
-						</div>
-						<!-- /End Icon -->
-            </div>
-            <div class="row">
-                <div class="col-xs-12 col-sm-6">
-                    <input class="form-control" placeholder="min" style="text-align:center;" type="text" id="anu-min"/>
-                </div>
-                <div class="col-xs-12 col-sm-6">
-                    <input class="form-control" placeholder="max" style="text-align:center;" type="text" id="anu-max"/>
-                </div>
-            </div>
-        </div>
-           
-        <!--div class="col-xs-6 form-group">
-            <label>Accelerator Support</label>
-            <input class="form-control" type="text" placeholder="Accelerator Support" style="text-align:center;" id="acc-sup"/>
-        </div-->
-                
-        <div class="col-xs-6 form-group" style="display:none;">
-            <div>
-                <label class="col-xs-12">Accelerator Support</label>
-            </div>
-            
-            <div class="row" id="acc-sup">
-                <div class="col-xs-4 col-sm-3">
-                    <input class="form-control" placeholder="CPU" style="text-align:center;" type="text" id="acc-sup-imp1" readonly/>
-                </div>
-                <div class="col-xs-4 col-sm-3">
-                    <input class="form-control" placeholder="CPU+GPU" style="text-align:center;" type="text" id="acc-sup-imp2" readonly/>
-                </div>
-                <div class="col-xs-4 col-sm-3">
-                    <input class="form-control" placeholder="CPU+DFE" style="text-align:center;" type="text" id="acc-sup-imp3" readonly/>
-                </div>
-                <div class="col-xs-4 col-sm-3">
-                    <input class="form-control" placeholder="CPU+MIC" style="text-align:center;" type="text" id="acc-sup-imp4" readonly/>
-                </div>
-            </div>
-        </div>
-           
-        <!--div class="col-xs-6 form-group">
-            <label>Rho for accelerator execution per Implementation</label>
-            <input class="form-control" type="text" placeholder="Rho" style="text-align:center;" id="rho-exec"/>
-        </div-->
-         
-        <div class="col-xs-6 form-group">
-            <div>
-                <label class="col-xs-12">Rho for accelerator execution per Implementation</label>
-            </div>
-            
-            <div class="features-left">
-                        <!-- Icon -->
-						<div class="icon-md icon-color">
-							<div class="cd-points-container points-enlarged points-pulsing">
-								<div class="cd-single-point visited">
-									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-right" style="height:150px;">
-										<h3>Rho for accelerator execution per Implementation</h3>
-										<p>Provide the Rho factor of each accelerator, a number between 0 and 1 (e.g. 0.8).</p>
-										<a class="cd-close-info cd-img-replace">Close</a>
-									</div>
-								</div>
-								
-							</div>
-						</div>
-						<!-- /End Icon -->
-            </div>
-            
-            <div class="row">
-                <div class="col-xs-4 col-sm-3">
-                    <input class="form-control" placeholder="CPU" style="text-align:center;" type="text" id="rho-imp1" readonly/>
-                </div>
-                <div class="col-xs-4 col-sm-3">
-                    <input class="form-control" placeholder="CPU+GPU" style="text-align:center;" type="text" id="rho-imp2" readonly/>
-                </div>
-                <div class="col-xs-4 col-sm-3">
-                    <input class="form-control" placeholder="CPU+DFE" style="text-align:center;" type="text" id="rho-imp3" readonly/>
-                </div>
-                <div class="col-xs-4 col-sm-3">
-                    <input class="form-control" placeholder="CPU+MIC" style="text-align:center;" type="text" id="rho-imp4" readonly/>
-                </div>
-            </div>
-        </div>
-        
+    <div id="button-group" align="right" >
+        <button id="previous-button" class="btn btn-default" onclick="previousHwType()"><</button>
+        <button id="next-button" class="btn btn-default" onclick="nextHwType()">></button>
     </div>
 
     <!-- Save, Add and Cancel Buttons -->
@@ -2036,9 +1540,12 @@
              
 <br/><br/>
              
-<!-- Section 4: General Properties Section -->       
-<h2 class="sub-header" align="left">General Properties</h2>
-<div class="row" id="prop-edit" align="center">
+        
+        
+<!-- Section 4: General Properties Section -->    
+    <h2 class="sub-header" align="left">General Properties</h2>
+        
+    <div class="row" id="prop-edit" align="center">
         <div class="col-xs-6 form-group">
             <div>
                 <label class="col-xs-12">Maximum Simulation Time</label>
@@ -2059,34 +1566,32 @@
             </div>
         </div>         
 
-</div>
-<br/><br/><br/>
+    </div>
+    <br/><br/><br/>
 
 <!-- Section 5: Export JSON section -->
-<h2 class="sub-header" align="left">Export</h2>          
-               <!-- Section 4 -->
-                <br>
-                    <label  style="font-family: Calibri; font-size:20px"> Click the button below to retrieve the desired JSON string: </label>
-                <br>
+    <h2 class="sub-header" align="left">Export</h2>          
+               
+        <br>
+            <label  style="font-family: Calibri; font-size:20px"> Click the button below to retrieve the desired JSON string: </label>
+        <br>
+
+        <input type="text" id="export-field" class="form-control"  placeholder= "JSON String Output" width="500px" vspace="0" style="max-width:500px;margin:auto;margin-top:10px;text-align:center;">
+        <br>
+        <button id="export-button" class="btn btn-default" onclick="exportJSON()">Export Json</button>
+
+        <!-- Trick for exporting a file with a desired name and in the desired format -->
+        <button id="export-file-button" class="btn btn-default" onclick="exportJSONtoFile2()" download="file.txt">Export Json to File</button>
+        <a id="download-anchor" onclick="exportJSONFile()" download="CellData.json" style="display:none;">Hello!</a> 
+
+        <br><br>
+        <hr/>
              
-                <input type="text" id="export-field" class="form-control"  placeholder= "JSON String Output" width="500px" vspace="0" style="max-width:500px;margin:auto;margin-top:10px;text-align:center;">
-                <br>
-                <button id="export-button" class="btn btn-default" onclick="exportJSON()">Export Json</button>
-                
-                <!-- Trick for exporting a file with a desired name and in the desired format -->
-                <button id="export-file-button" class="btn btn-default" onclick="exportJSONtoFile2()" download="file.txt">Export Json to File</button>
-                <a id="download-anchor" onclick="exportJSONFile()" download="CellData.json" style="display:none;">Hello!</a> 
-                
-                <br><br>
-                <hr/>
-             
-            </div>
-         </div>
-      </div>
+  </div>
+ </div>
+</div>
        
-        <div class="container-fluid" align="center">
-       </div>
-    
+<!-- Appropriate scripts and stylesheets importation -->
     <!-- Bootstrap core JavaScript================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="./Dashboard Template for Bootstrap_files/jquery.min.js.download"></script><script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script><script src="./Dashboard Template for Bootstrap_files/bootstrap.min.js.download"></script><!-- Just to make our placeholder images work. Don't actually copy the next line! --><script src="./Dashboard Template for Bootstrap_files/holder.min.js.download"></script><!-- IE10 viewport hack for Surface/desktop Windows 8 bug --><script src="./Dashboard Template for Bootstrap_files/ie10-viewport-bug-workaround.js.download"></script>
