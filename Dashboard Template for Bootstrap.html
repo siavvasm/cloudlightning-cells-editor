@@ -472,7 +472,7 @@
             function importHwTypesButtonPressed() {
                 
                 // 0. Import the available hardware types
-                hw_types = parseHwTypesJSONFile("hardware_types_array.File");
+                hw_types = parseHwTypesJSONFile("./Hardware_Types/hardware_types_array.File");
                 
                 // 1. Select the first hardware type
                 selected_hw = 1;
@@ -1419,11 +1419,11 @@
                         <!-- Icon -->
 						<div class="icon-md icon-color">
 							<div class="cd-points-container points-enlarged points-pulsing">
-								<div class="cd-single-point visited" onclick="adjustPopUp()">
+								<div class="cd-single-point visited">
 									<a class="cd-img-replace">More info</a>
 									<div class="cd-more-info cd-left" style="height:110px;">
 										<h3>Available Implementations</h3>
-										<p>Provide which hardware type the application can be executed. </p>
+										<p>Provide which hardware types are supported by the current cell. </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
 									</div>
 								</div>
@@ -1452,8 +1452,26 @@
                 <label class="col-xs-12">Cell Interconnection Bandwidth</label>
             </div>
             
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-right" style="height:140px;">
+										<h3>Cell Interconnection Bandwidth</h3>
+										<p>Provide an integer value denoting the interconnection bandwidth of the current cell (e.g. 400). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
             <div class="col-xs-12 col-sm-12">
-                <input class="form-control" placeholder="Cell_Interconnection_Bandwidth" style="text-align:center;" type="text" id="cell-inter-bw"/>
+                <input class="form-control" type="number" min="0" placeholder="Cell_Interconnection_Bandwidth" style="text-align:center;" type="text" id="cell-inter-bw"/>
             </div>
         </div>
            
@@ -1462,8 +1480,26 @@
                 <label class="col-xs-12">Network Bandwidth Overcommitment ratio</label>
             </div>
             
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-left" style="height:150px;">
+										<h3>Network Bandwidth Overcommitment ratio</h3>
+										<p>Provide an integer value denoting the overcommitment ratio of the network bandwidth (e.g. 200). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
             <div class="col-xs-12 col-sm-12">
-                <input class="form-control" placeholder="Network Bandwidth Overcommitment ratio" style="text-align:center;" type="text" id="net-bw-ratio"/>
+                <input class="form-control" type="number" min="0" placeholder="Network Bandwidth Overcommitment ratio" style="text-align:center;" type="text" id="net-bw-ratio"/>
             </div>
         </div>         
 
@@ -1508,7 +1544,7 @@
                   </table>
                </div>
                 
-               <div id="button-group" align="left" >
+               <div id="button-group" align="right" >
                 <button id="previous-button" class="btn btn-default" onclick="previousHwType()"><</button>
                 <button id="next-button" class="btn btn-default" onclick="nextHwType()">></button>
                </div>
@@ -2002,7 +2038,7 @@
             </div>
             
             <div class="col-xs-12 col-sm-12">
-                <input class="form-control" placeholder="Maximum Simulation Time" style="text-align:center;" type="text" id="max-sim-time"/>
+                <input class="form-control" type="number" min="0" placeholder="Maximum Simulation Time" style="text-align:center;" type="text" id="max-sim-time"/>
             </div>
         </div>
            
@@ -2012,7 +2048,7 @@
             </div>
             
             <div class="col-xs-12 col-sm-12">
-                <input class="form-control" placeholder="Update Interval" style="text-align:center;" type="text" id="update-interval"/>
+                <input class="form-control" type="number" min="0" placeholder="Update Interval" style="text-align:center;" type="text" id="update-interval"/>
             </div>
         </div>         
 
