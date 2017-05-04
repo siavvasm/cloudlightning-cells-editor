@@ -389,29 +389,34 @@
                 
                 // 0. Import the available hardware types (Click the hidden button)
                 document.getElementById("import-hw-types-button").click();
-              /*  
+              /*  */
                 // 1. Load the locally stored data
                 var reloaded = sessionStorage.getItem("reloaded");
                 var current_obj = sessionStorage.getItem("current_obj");
+                var current_cells = sessionStorage.getItem("current_cells");
 
                 // 2. Check if the page is loaded after a refresh
                 if (reloaded == "true") {
                     
                     // 3. Read the previously stored contents
                     obj = JSON.parse(current_obj);
+                    cells = JSON.parse(current_cells);
                     
                     // 4. Refresh the view
-                    updateApplicationTable();
-                    addTableRowHandler();
+                    if (cells.length != 0) {
+                        selected_cell = 1;                      
+                    }
+                    updateCellsTable();
+
                 }
-                */
+                
             }
             
             /* 
              * This function is called before reloading the page in order
              * to store the previous work made by the user.
              */ 
-/*
+/**/
             window.onbeforeunload = function() {
                 
                 // 1. Define that a page refresh has been performed
@@ -419,9 +424,11 @@
                 
                 // 2. Store the current work locally in the current session
                 var current_obj = JSON.stringify(obj);
+                var current_cells = JSON.stringify(cells);
                 sessionStorage.setItem("current_obj", current_obj);
+                sessionStorage.setItem("current_cells", current_cells);
             }
-*/
+
             
             // Initialize the global variables
             var obj = {"Maximum Simulation Time":0, "Update Interval":0, "Number of Cells":0, "Cells":[]};  
