@@ -480,6 +480,9 @@
                 // 2. Update the table with the Cells data
                 updateCellsTable();
                 
+                //NEW:
+                updateHwTypesTable();
+                
             }
     
             /**
@@ -514,6 +517,7 @@
                       
                       //NEW:
                       updateHardwareTypeList();
+                      updateHwTypesTable();
                       
                       // 4. Clear the list with the files (to allow re-importation of the same file)
                       document.getElementById('fileToLoad-cell').value = "";
@@ -910,6 +914,9 @@
                     // 2. Update the Tables
                     updateCellsTable();
                     
+                    //NEW:
+                    updateHwTypesTable();
+                    
                     // 3. Display the table with the details of the newly added cell
                     cancelCellButtonPressed();
                 } 
@@ -1056,6 +1063,8 @@
                         
                         // 4. Update the tables
                         updateCellsTable();
+                        //NEW:
+                        updateHwTypesTable();
                     }
                 } else {
                      alert("Please select an application entry to delete!");
@@ -1195,7 +1204,12 @@
             }
     
             function editHardwareTypeButtonPressed() {
-                
+                alert("EDIT!!!");
+                if ((selected_cell != 0) && (selected_hw != 0)) {
+                    
+                } else {
+                    alert("Please select a Hardware Type first.");
+                }
             }
             
 </script>
@@ -1360,6 +1374,7 @@
     <div id="button-group" align="right" >
         <button id="previous-button" class="btn btn-default" onclick="previousHwType()"><</button>
         <button id="next-button" class="btn btn-default" onclick="nextHwType()">></button>
+        <button id="edit-hw-type" class="btn btn-default" onclick="editHardwareTypeButtonPressed()">Edit</button>
     </div>
 
     <!-- Save, Add and Cancel Buttons 
