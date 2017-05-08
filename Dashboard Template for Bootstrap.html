@@ -712,7 +712,7 @@
                     var hw_types_list = [];
                     
                     for (var j = 0; j < currentCell["HW_types"].length; j++) {
-                        hw_types_list[j] = hw_types[parseInt(currentCell["HW_types"][j]) - 1];
+                        hw_types_list[j] = hw_types_per_cell[i][parseInt(currentCell["HW_types"][j]) - 1];
                     }
                     
                     // TODO: Keep the name of the HW Type in the exported file
