@@ -351,13 +351,13 @@
                 <br>
                 <label style="font-family: Calibri; font-size:20px"> Please provide the JSON string or click the import button to load the JSON file that you would like to parse its contnet: </label>
                 <br><br>
-                <input type="text" id="import-field" class="form-control"  placeholder= "JSON string or file name" width="100px" vspace="0" style="max-width:300px;margin:auto;margin-top:10px;text-align:center;">  
+                <input type="text" id="import-cell-field" class="form-control"  placeholder= "JSON string or file name" width="100px" vspace="0" style="max-width:300px;margin:auto;margin-top:10px;text-align:center;">  
                 <br>
-                <div id="button-group">
-                    <button id="parse-button" class="btn btn-default" onclick="parseJSON()">Parse</button>
-                    <button id="select-button" class="btn btn-default" onclick="document.getElementById('fileToLoad').click();">Import</button>
-                    <input type="file" id="fileToLoad" style="display:none;" onchange="importJSONFile()">
-                    <button id="import-hw-types-button" class="btn btn-default" onclick="importHwTypesButtonPressed()" style="display:none;">Import HW Types</button>          
+                <div id="button-group-cell">
+                    <button id="parse-button-cell" class="btn btn-default" onclick="parseCellsJSON()">Parse</button>
+                    <button id="select-button-cell" class="btn btn-default" onclick="document.getElementById('fileToLoad-cell').click();">Import</button>
+                    <input type="file" id="fileToLoad-cell" style="display:none;" onchange="importCellsJSONFile()">
+                    <button id="import-hw-types-button" class="btn btn-default" onclick="importHwTypesButtonPressed()" style="display:none;">Import HW Types</button>
                 </div>
                     
                 <br><br>
@@ -375,19 +375,19 @@
                 
                 // 0. Import the available hardware types (Click the hidden button)
                 document.getElementById("import-hw-types-button").click();
-/**/
+
                 // 1. Load the locally stored data
                 var reloaded = sessionStorage.getItem("reloaded");
-                var current_obj = sessionStorage.getItem("current_obj");
+                var current_obj_cells = sessionStorage.getItem("current_obj_cells");
                 var current_cells = sessionStorage.getItem("current_cells");
 
                 // 2. Check if the page is loaded after a refresh
                 if (reloaded == "true") {
                     
                     // 3. Read the previously stored contents
-                    obj = JSON.parse(current_obj);
+                    obj_cells = JSON.parse(current_obj_cells);
                     cells = JSON.parse(current_cells);
-                    
+                   
                     // 4. Refresh the view
                     if (cells.length != 0) {
                         selected_cell = 1;                      
@@ -407,24 +407,121 @@
                 sessionStorage.setItem("reloaded", "true");
                 
                 // 2. Store the current work locally in the current session
-                var current_obj = JSON.stringify(obj);
+                var current_obj_cells = JSON.stringify(obj_cells);
                 var current_cells = JSON.stringify(cells);
-                sessionStorage.setItem("current_obj", current_obj);
+                sessionStorage.setItem("current_obj_cells", current_obj_cells);
                 sessionStorage.setItem("current_cells", current_cells);
             }
 
             
             // Initialize the global variables
-            var obj = {"Maximum Simulation Time":0, "Update Interval":0, "Number of Cells":0, "Cells":[]};  
+            var obj_cells = {"Maximum Simulation Time":0, "Update Interval":0, "Number of Cells":0, "Cells":[]};  
             var hw_types = []; // The list containing the available Hardware Types
             var cells = [];
             var selected_cell = 0;
             var selected_hw = 0;
-            var save = false;
-            var imported = false;
+    
+            //NEW: HW TYPE EDITOR
+            var hw_types_per_cell = [];
             
-            var schemaStr = ```{"title":"Application set","Number of Applications":{"type":"number"},"Minimum and Maximum Jobs Per Second":{"type":"array"},"Applications":{"type":"array","items": {"title":"Application","type":"object","properties": {"ApplicationID": {"type": "number"},"Number of Available Implementations": {"type": "number"},"Available Implementations": {"type": "number"},"Minimum - Maximum Instructions Per App": {"type": "array"},"Minimum - Maximum VMs Per App":{"type":"array"},"Minimum - Maximum vCPUs Per VM":{"type":"array"},"Minimum - Maximum Memory Per VM": {"type": "array"},"Minimum - Maximum Storage Per VM": {"type": "array"},"Minimum - Maximum Network Per VM": {"type": "array"},"Type of Actual Utilization (vCPU,Memory,Network)": {"type": "array"},"Minimum - Maximum Actual vCPU Utilization": {"type": "array"},"Minimum - Maximum Actual Memory Utilization": {"type": "array"},"Minimum - Maximum Actual Network Utilization": {"type": "array"},"Accelerator support": {"type": "array"},"Rho for accelerator execution per Implementation": {"type": "array"}}}}}```;
+           /**
+             * This function is called when the Parse button is clicked, and
+             * is responsible for parsing a given JSON string.
+             */
+            function parseCellsJSON() {
+
+                // 0. Initialization
+                selected_cell = 1;
+                
+                // 1. Get the JSON string
+                var jsonInput = document.getElementById("import-cell-field").value;
+                
+                if (jsonInput.includes('{') && jsonInput.includes('}')) {
+                    
+                    // 2. Parse the content of the JSON string
+                    obj_cells = JSON.parse(jsonInput);
+                    
+                    // 3. Update the tables
+                    updateCellsList();
+                    updateCellsTable();
+                    
+                } else {
+                    alert("Please provide a valid json string before clicking the Parse button!");
+                }     
+            }
             
+            /**
+             * This function is called when the Import button is clicked, and
+             * in responsile for import a file that contains the deired JSON 
+             * string.
+             */
+            function importCellsJSONFile() {
+                
+                // 0. Initialization
+                selected_cell = 1;
+                
+                // 1. Import the CellData to the desired object (i.e. obj_cells)
+                loadCellsFileContent();
+                
+                // 2. Update the table with the Cells data
+                updateCellsTable();
+            }
+    
+            /**
+             * This function is responsible for parsing the content of the 
+             * file that contains the desired JSON with the Cells data.
+             */
+            function loadCellsFileContent(){
+
+                  // 1. Get the name of the desired file and update the value of the Import field.
+                  var fileToLoad = document.getElementById("fileToLoad-cell").files[0];
+                  document.getElementById("import-cell-field").value = fileToLoad["name"];
+
+                  // Create a new FileReader object.
+                  var fileReader = new FileReader();
+
+                  /**
+                   * Define what the FileReader object should do, when the desired file is loaded.
+                   */
+                  fileReader.onload = function(fileLoadedEvent){
+
+                      // 1. Load the String and print it to the console
+                      var textFromFileLoaded = fileLoadedEvent.target.result;
+                      console.log(textFromFileLoaded);
+
+                      // 2. Parse the JSON string into a JavaScript object
+                      obj_cells = JSON.parse(textFromFileLoaded);
+                      console.log(obj_cells);
+                      
+                      // 3. Update everything
+                      updateCellsList();
+                      updateCellsTable();
+                      
+                      // 4. Clear the list with the files (to allow re-importation of the same file)
+                      document.getElementById('fileToLoad-cell').value = "";
+                      
+                  };
+                  
+                  // Read the content of the file
+                  fileReader.readAsText(fileToLoad, "UTF-8");
+            }
+            
+            function updateCellsList() {
+                
+                // 0. Copy the cells list
+                cells = JSON.parse(JSON.stringify(obj_cells["Cells"]));
+
+                // 1. For each cell replace the list of HW_Types with a list of their IDs
+                for (var i = 0; i < cells.length; i++) {
+                    var hwt = cells[i]["HW_types"].slice(0);
+                    var selected_types = [];
+                    for (var j = 0; j < hwt.length; j++) {
+                        selected_types[j] = hwt[j]["HW_type_ID"];
+                    }
+                    cells[i]["HW_types"] = selected_types;
+                }
+            }
+    
             /**
              * Parse the file that contains the Hardware Types that are available by 
              * the Cloudlightning simulator.
@@ -459,10 +556,11 @@
                 return loadedJSON;
             }
             
+//TODO: If it fails to import it from the selected file, add the string directly inside the code.
             function importHwTypesButtonPressed() {
                 
                 // 0. Import the available hardware types
-                hw_types = parseHwTypesJSONFile("./Hardware_Types/hardware_types_array.File");
+                hw_types = parseHwTypesJSONFile("hardware_types_array.File");
                 
                 // 1. Select the first hardware type
                 selected_hw = 1;
@@ -533,165 +631,31 @@
                 // 3. Update the table in order to show the details of the selected hw type
                 updateCellsTable();
             }
-            
-            /**
-             * This function is called when the Parse button is clicked, and
-             * is responsible for parsing a given JSON string.
-             */
-            function parseJSON() {
-
-                // 0. Initialization
-                selected_cell = 1;
-                
-                // 1. Get the JSON string
-                var jsonInput = document.getElementById("import-field").value;
-                imported = true; // State that importation is attempted by the user
-                
-                if (jsonInput.includes('{') && jsonInput.includes('}')) {
-                    
-                    // 2. Parse the content of the JSON string
-                    obj = JSON.parse(jsonInput);
-                    
-                    // 3. Update the tables
-                    updateCellsList();
-                    updateCellsTable();
-                    //updateApplicationTable();
-                    //addTableRowHandler();
-                    
-                } else {
-                    alert("Please provide a valid json string before clicking the Parse button!");
-                }     
-            }
-            
-            /**
-             * This function is called when the Import button is clicked, and
-             * in responsile for import a file that contains the deired JSON 
-             * string.
-             */
-            function importJSONFile() {
-                
-                // 0. Initialization
-                selected_cell = 1;
-                //hidePropertiesViewAndEdit();
-                
-                // Import the file content as text
-                loadFileContent();
-                
-                // Update the tables
-                imported = true; // State that importation is attempted by the user
-                
-                // Get the cells
-                updateCellsTable();
-                //updateApplicationTable();   
-                //addTableRowHandler();
-                
-
-            }
-            
-            function updateCellsList() {
-                
-                // 0. Copy the cells list
-                cells = JSON.parse(JSON.stringify(obj["Cells"]));
-
-                // 1. For each cell replace the list of HW_Types with a list of their IDs
-                for (var i = 0; i < cells.length; i++) {
-                    var hwt = cells[i]["HW_types"].slice(0);
-                    var selected_types = [];
-                    for (var j = 0; j < hwt.length; j++) {
-                        selected_types[j] = hwt[j]["HW_type_ID"];
-                    }
-                    cells[i]["HW_types"] = selected_types;
-                }
-            }
-            
-            function hidePropertiesViewAndEdit() {
-                document.getElementById("prop-table-full").setAttribute("style","display: none;");
-                document.getElementById("prop-edit").setAttribute("style","display: none;");
-                document.getElementById("button-group-2").style.display = "none";
-                document.getElementById("save-button").style.display = "none";
-                document.getElementById("add-button").style.display = "none";
-                document.getElementById("cancel-button").style.display = "";
-            }
-            
-
-            /**
-             * This function is responsible for parsing the content of the 
-             * file that contains the desired JSON.
-             */
-            function loadFileContent(){
-
-                  // 1. Get the name of the desired file and update the value of the Import field.
-                  var fileToLoad = document.getElementById("fileToLoad").files[0];
-                  document.getElementById("import-field").value = fileToLoad["name"];
-
-                  // Create a new FileReader object.
-                  var fileReader = new FileReader();
-
-                  /**
-                   * Define what the FileReader object should do, when the desired file is loaded.
-                   */
-                  fileReader.onload = function(fileLoadedEvent){
-
-                      // 1. Load the String and print it to the console
-                      var textFromFileLoaded = fileLoadedEvent.target.result;
-                      console.log(textFromFileLoaded);
-
-                      // 2. Parse the JSON string into a JavaScript object
-                      obj = JSON.parse(textFromFileLoaded);
-                      console.log(obj);
-                      
-                      // 3. Update everything
-                      updateCellsList();
-                      updateCellsTable();
-                      //updateApplicationTable();
-                      //addTableRowHandler();
-                      
-                      // 4. Clear the list with the files (to allow re-importation of the same file)
-                      document.getElementById('fileToLoad').value = "";
-                      
-                  };
-                  
-                  // Read the content of the file
-                  fileReader.readAsText(fileToLoad, "UTF-8");
-            }
-            
-            /**
-             * Checks if the JSON file provided as input adheres to the desired schema.
-             */
-            function isJSONValid(json) {
-                console.log("Inside is valid...")
-                
-                // 1. Parse the schema:
-                var schema = JSON.parse(schemaStr);
-                console.log(schema);
-                
-            }
 
             /**
              * This function is called when the Export button pressed, in order
              * to export the final list of applications as a JSON String.
              */
-            function exportJSON() {
+            function exportCellDataJSON() {
                 
                 if (getGeneralFieldsAndValidate()){
 
                     // 0. Define the overall values
-                    obj["Number of Cells"] = obj["Cells"].length;
+                    obj_cells["Number of Cells"] = obj_cells["Cells"].length;
                     
                     // 1. Add the info of each HW_Type to each cell
                     mapHwTypesToCells();
                     
                     // 2. Convert the data into a JSON String
-                    var json = neatJSON(obj, {'sort':false, 'wrap':40, 'aligned':true, 'around_colon':1 });
+                    obj_cells["Number of Cells"] = obj_cells["Cells"].length;
+                    var json = neatJSON(obj_cells, {'sort':false, 'wrap':40, 'aligned':true, 'around_colon':1 });
 
                     // 3. Write the string to the desired textfield
-                    document.getElementById("export-field").value = JSON.stringify(obj);
-                    document.getElementById("export-area").value = json;
+                    document.getElementById("export-cell-field").value = JSON.stringify(obj_cells);
+                    document.getElementById("export-cell-area").value = json;
                     
                     // 4. Turn the obj into its previous form
                     updateCellsTable();
-                    //updateCellsList();
-                    //obj["Cells"] = cells;
                 }
                
             }
@@ -706,7 +670,7 @@
             function mapHwTypesToCells() {
                 
                 // 0. Update the cells list
-                obj["Cells"] = JSON.parse(JSON.stringify(cells));
+                obj_cells["Cells"] = JSON.parse(JSON.stringify(cells));
                 
                 for (var i = 0; i < cells.length; i++) {
                     
@@ -723,112 +687,17 @@
                         delete(hw_types_list[j]["HW_type_Name"]);
                     }
  */                   
-                    obj["Cells"][i]["HW_types"] = hw_types_list;
+                    obj_cells["Cells"][i]["HW_types"] = hw_types_list;
                 }
             }
             
-            /**
-             * This function updates the Applications table based on the objects stored
-             * inside the Applications array of the desired JSON. In particular, it 
-             * creates one row for each Application object found in this JavaScript 
-             * array.
-             */
-            function updateApplicationTable() {
-                
-                // 1. Clean the contents of the table
-                var table = document.getElementById("app-table")
-                table.innerHTML = "";
-                
-                // 2. Get the array that contains the application objects
-                var appArray = obj["Applications"];
-                
-                // 3. Create one row for each application object
-                for (var i = 0, len = appArray.length; i < len; i++) {
-                    
-                    var application = appArray[i];
-                    
-                    var tr = document.createElement("tr");
-                    
-                    var t1 = document.createElement("td");
-                    var c1 = document.createTextNode(i + 1)
-                    t1.appendChild(c1);
-                    
-                    var t2 = document.createElement("td");
-                    var c2 = document.createTextNode("App" + (i + 1))
-                    t2.appendChild(c2);
-                    
-                    tr.appendChild(t1);
-                    tr.appendChild(t2);
-                    
-                    table.appendChild(tr);
-                }
-            }
-            
-           
-            /**
-             * This function adds an "onclick" handler to the rows of the Application Table.
-             * Whenever an Application entry is clicked the "selected" variable is updated in
-             * order to point to the selected application entry, and the Properties table is
-             * updated in order to show its details.
-             */   
-            function addTableRowHandler() {
-                
-                // 1. Get the rows of the first html table
-                var table = document.getElementById("app-table");
-                var rows = table.getElementsByTagName("tr");
-                
-                // 2. Add the desired listener to the rows of the table
-                for (var i = 0, len = rows.length; i < len; i++) {
-
-                    rows[i].onclick = function () {
-
-                        // 1. Reset the color of the table rows
-                        for (var i = 0, len = rows.length; i < len; i++) {
-                            rows[i].className = "";
-                        }
-                        
-                        // 2. Highlight the selected row
-                        var sel = this.className;
-                        
-                        if (sel == "") {
-                            this.className = "highlight";
-                        } else {
-                            this.className = "";
-                        }
-                     
-                        // 3. Update the Properties Table or the Edit Form with the details of the selected App
-                        x = this.getElementsByTagName("td");
-                        selected = parseInt(x[0].textContent); 
-                        if(imported || document.getElementById("prop-table-full").style.display != "none"){
-                            
-                            // Check if it is the first time after the importation
-                            if(imported) {
-                                // Make the properties table visible and reset the imported flag.
-                                document.getElementById("prop-table-full").style.display = "";
-                                imported = false;
-                            }
-                            
-                            // Update the contents of the Properties Table.
-                            updatePropertiesTable();
-                            
-                        } else {
-                            // The row was clicked during edit phase
-                            editButtonPressed();
-                        }
-                    }
-                }
-                
-            }            
-                      
+  
             /*
              * This function is responsible for updating the content of the Hardware Types html table
              * with the details of the Hardware Type object that the "selected_hw" global variable
              * points to.         
              */
             function updateHwTypesTable() {
-                
-                // 0. Hide the buttons
-                document.getElementById("button-group-2").style.display = "none";
                 
                 // 1. Clean the contents of the table
                 var table = document.getElementById("hw-types-table");
@@ -872,9 +741,6 @@
              */
             function updateCellsTable() {
                 
-                // 0. Hide the buttons
-                document.getElementById("button-group-2").style.display = "none";
-                
                 // 1. Clean the contents of the table
                 var table = document.getElementById("cells-table");
                 table.innerHTML = "";
@@ -914,29 +780,27 @@
              * This function is responsible for displaying an empty New/Edit Cell
              * form.
              */
-            function newButtonPressed() {
+            function newCellButtonPressed() {
                 
                 // 0. Show the Add button
                 document.getElementById("cells-buttons").style.display = "none";
-                document.getElementById("button-group-3").style.display = "";
-                document.getElementById("save-button").style.display = "none";
-                document.getElementById("add-button").style.display = "";
+                document.getElementById("button-group-3-cell").style.display = "";
+                document.getElementById("save-button-cell").style.display = "none";
+                document.getElementById("add-button-cell").style.display = "";
                 
                 // 1. Hide the table and display the form
                 document.getElementById("cells-view").setAttribute("style","display: none;");
                 document.getElementById("cells-edit").setAttribute("style","");
                 
                 // 2. Clear all the text fields
-                //clearTextFields();
-                clearCheckboxes();
-                //resetFields();
+                clearCellCheckboxes();
             }
             
             /**
              * This function is responsible for clearing the fields 
              * of the New/Edit Cell form.
              */
-            function clearTextFields() {
+            function clearCellTextFields() {
                 
                 document.getElementById("cell-inter-bw").value = "";
                 document.getElementById("net-bw-ratio").value = "";
@@ -948,14 +812,14 @@
              * in order to present the table with the details of the 
              * Cell entries.
              */
-            function cancelButtonPressed() {
+            function cancelCellButtonPressed() {
                 
                 // 0. Hide the buttons
-                document.getElementById("button-group-3").style.display = "none";
+                document.getElementById("button-group-3-cell").style.display = "none";
                 
                 // 0. Clear the checkboxes
-                clearCheckboxes();
-                clearTextFields();
+                clearCellCheckboxes();
+                clearCellTextFields();
                 
                 // 1. Hide the New Application form and display the table with the selected application contents
                 document.getElementById("cells-edit").setAttribute("style","display: none;");
@@ -970,7 +834,7 @@
              * to the array with the other Cells. The new Cell
              * entry is verified before added to the list.
              */
-            function addButtonPressed() {
+            function addCellButtonPressed() {
                 
                 // 1. Create an empty application
                 var newCell = {};
@@ -991,7 +855,7 @@
                     updateCellsTable();
                     
                     // 3. Display the table with the details of the newly added cell
-                    cancelButtonPressed();
+                    cancelCellButtonPressed();
                 } 
 
             }
@@ -1047,12 +911,12 @@
              * implementations that were selected by the user through the
              * available checkboxes.
              */
-            function retrieveAvailImpl() {
+            function retrieveAvailImplCell() {
                 
                 // 1. Initialize the necessary variables 
                 var availImpl = [];
                 var k = 0;
-                var list = document.getElementById("av-im").getElementsByTagName("input");
+                var list = document.getElementById("av-im-cell").getElementsByTagName("input");
                 
                 // 2. Get the selected implementations and add them to a list
                 for (var i=0, length=list.length; i < length ; i++) {
@@ -1071,8 +935,8 @@
              * of the Edit form that correspond to the Available Implementations  
              * of the Cloudlightning simulator. 
              */
-            function clearCheckboxes() {
-                var list = document.getElementById("av-im").getElementsByTagName("input");
+            function clearCellCheckboxes() {
+                var list = document.getElementById("av-im-cell").getElementsByTagName("input");
                 for (var i=0, length = list.length; i < length ; i++) {
                     list[i].checked = false;
                 }
@@ -1098,7 +962,7 @@
                 newCell["Network_Bandwidth_Overcommitment_ratio"] = parseInt(document.getElementById("net-bw-ratio").value);
                 
                 // Define the selected implementations and their number
-                var availImpl = retrieveAvailImpl();
+                var availImpl = retrieveAvailImplCell();
                 newCell["Number_of_HW_types"] = availImpl.length;
                 newCell["HW_types"] = availImpl;
                 
@@ -1139,62 +1003,24 @@
                 }
                 
             }
-           
-            /**
-             * This function is responsible for deleting a selected application
-             * entry from the list with the applications.
-             */
-            function deleteButtonPressed () {
-                
-                // Ensure that a specific entry is selected
-                if (selected != 0) {
-                    
-                    // Ask confirmation from the user to avoid accidental deletion
-                    var answer = confirm("This entry will be permanently deleted! Proceed with the action?");
-                    
-                    if (answer) {
-
-                        // 1. Remove the application object from the array
-                        obj["Applications"].splice(selected - 1, 1);
-                        
-                        // 2. Update the IDs of the remaining applications
-                        for (var i = 0, len = obj["Applications"].length; i < len; i++) {
-                            obj["Applications"][i]["ApplicationID"] = i + 1;
-                        }
-                        
-                        // 3. Diselect the applications
-                        selected = 0;
-                        
-                        // 4. Update the tables
-                        updateApplicationTable();
-                        updatePropertiesTable();
-                        addTableRowHandler();
-                        cancelButtonPressed();
-                    }
-    
-                } else {
-                    alert("Please select an application entry to delete!");
-                }
-            }
             
             /** 
              * This function is responsible for displaying the New/Edit Cell form
              * with its fields containing the details of the selected application entry.
              */
-            function editButtonPressed() {
+            function editCellButtonPressed() {
                 
                 // Ensure that an application entry is selected
                 if (selected_cell != 0) {
                 
                     // 0. Display the Save button
-                    document.getElementById("button-group-3").style.display = "";
-                    document.getElementById("save-button").style.display = "";
-                    document.getElementById("add-button").style.display = "none";
+                    document.getElementById("button-group-3-cell").style.display = "";
+                    document.getElementById("save-button-cell").style.display = "";
+                    document.getElementById("add-button-cell").style.display = "none";
                     
                     
                     // 0. Clear the checkboxes and reset the Accelerator Support and Rho fields
-                    clearCheckboxes();
-                    //resetFields();
+                    clearCellCheckboxes();
                     
                     // 1. Hide the Properties Table and present the form
                     document.getElementById("cells-view").setAttribute("style","display: none;");
@@ -1222,9 +1048,7 @@
              * This function is responsible for saving the changes made to the selected 
              * application entry.
              */
-            function saveButtonPressed() {
-                // 2. Declare that the Save button is pressed
-                save = true;
+            function saveCellButtonPressed() {
                 
                 // 1. Create a new Application object
                 var newCell = {}
@@ -1242,14 +1066,11 @@
                     // Update the Tables
                     updateCellsTable();
                     
-                    // TODO: Remove this print
-                    //console.log(newApp)
-                    
                     // Display the table
-                    cancelButtonPressed();
+                    cancelCellButtonPressed();
                     
                     // Clear the checkboxes
-                    clearCheckboxes();
+                    clearCellCheckboxes();
             }
         }
             
@@ -1268,8 +1089,8 @@
                     alert("Please define the desired min and max jobs per second before exporting the JSON.");
                     return false;
                 } else {
-                    obj["Maximum Simulation Time"] = parseFloat(max_sim_time);
-                    obj["Update Interval"] = parseFloat(update_interval);
+                    obj_cells["Maximum Simulation Time"] = parseFloat(max_sim_time);
+                    obj_cells["Update Interval"] = parseFloat(update_interval);
                     return true;
                 }
             }
@@ -1278,28 +1099,25 @@
              * This functions are responsible for exporting the final applications list
              * in a JSON format.
              */
-            function exportJSONtoFile2() {
+            function exportCellsJSONtoFile2() {
                 if(getGeneralFieldsAndValidate()) {
-                    document.getElementById("download-anchor").click();
+                    document.getElementById("download-cells-anchor").click();
                 }
             }
             
-            function exportJSONFile() {
+            function exportCellsJSONFile() {
                 if(getGeneralFieldsAndValidate()) {
-                   obj["Number of Cells"] = obj["Cells"].length;
+                   obj_cells["Number of Cells"] = obj_cells["Cells"].length;
                     
                    // 1. Add the info of each HW_Type to each cell
                    mapHwTypesToCells();
                     
-                   var json = neatJSON(obj, {'sort':false, 'wrap':400, 'aligned':true, 'around_colon':1 });
+                   var json = neatJSON(obj_cells, {'sort':false, 'wrap':400, 'aligned':true, 'around_colon':1 });
                    
-                   document.getElementById("download-anchor").setAttribute("href", "data:application/octet-stream;," + encodeURIComponent(json));
+                   document.getElementById("download-cells-anchor").setAttribute("href", "data:application/octet-stream;," + encodeURIComponent(json));
                     
                    // TODO: Remove this print
-                   console.log(document.getElementById("download-anchor"));
-                    
-                   // Turn the obj into its previous form
-                   //updateCellsList();
+                   console.log(document.getElementById("download-cells-anchor"));
                   
                 }
             }
@@ -1309,64 +1127,18 @@
              * of the 'Accelerator Support' and 'Rho' properties based on the 
              * checkboxes selected by the user.
              */
-            function refreshFields() {
-                
-                // 0. Disable all the fields
-                disableFields();
+            function refreshCellFields() {
                 
                 // 1. Retrieve the selected implementations
-                availImpl = retrieveAvailImpl();
+                var availImpl = retrieveAvailImplCell();
+                return availImpl;
+            
+            }
+    
+            function editHardwareTypeButtonPressed() {
                 
-                // 2. Refresh the text fields
-                for(var i = 0; i < availImpl.length; i++) {
-                    switch(availImpl[i]){
-                        case 1:
-                            document.getElementById("acc-sup-imp1").value = 0;
-                            document.getElementById("rho-imp1").value = 0;
-                            break;
-                        default:
-                            // Automatically set the values of the accelerator support fields to 1
-                            document.getElementById("acc-sup-imp" + availImpl[i]).value = 1;
-                            document.getElementById("rho-imp" + availImpl[i]).readOnly = false;
-                            break;
-                    }
-                }
             }
             
-            /*
-             * This function is responsible for disabling all the fields of the
-             * 'Accelerator Support' and 'Rho' properties.
-             */
-            function disableFields() {
-                
-                // Clear the value of the fields that correspond to the first implementation
-                for (var i = 1; i < 5; i++) {
-                    document.getElementById("acc-sup-imp" + i).value = "";
-                }
-                
-                document.getElementById("rho-imp1").value = "";
-                
-                // Disable all the fields 
-                // TODO: Make this more generic
-                for(var i = 1; i < 5; i++) {
-                    document.getElementById("acc-sup-imp" + i).readOnly = true;
-                    document.getElementById("rho-imp" + i).readOnly = true;
-                }
-            }
-            
-            /*
-             * This function is responsible for reseting the values of the fields
-             * that correspond to the 'Accelerator Support' and 'Rho' properties.
-             */
-            function resetFields() {
-                //TODO: Make this more generic - use the number of the checkboxes
-                for(var i = 1; i < 5; i++) {
-                    document.getElementById("acc-sup-imp" + i).readOnly = true;
-                    document.getElementById("rho-imp" + i).readOnly = true;
-                    document.getElementById("acc-sup-imp" + i).value = "";
-                    document.getElementById("rho-imp" + i).value = "";
-                }
-            }
 </script>
                 
                 
@@ -1391,12 +1163,12 @@
         </div>
 
         <div id="cells-buttons">
-            <div id="button-group" align="right" >
+            <div id="button-group-cells-2" align="right" >
                 <button id="previous-cell" class="btn btn-default" onclick="previousCell()" align="left"><</button>
                 <button id="next-cell" class="btn btn-default" onclick="nextCell()" align="left">></button>
-                <button id="edit-button" class="btn btn-default" onclick="editButtonPressed()">Edit</button>
-                <button id="delete-button" class="btn btn-default" onclick="deleteCellButtonPressed()">Delete</button>
-                <button id="new-button" class="btn btn-default" onclick="newButtonPressed()">New</button>
+                <button id="edit-button-cell" class="btn btn-default" onclick="editCellButtonPressed()">Edit</button>
+                <button id="delete-button-cell" class="btn btn-default" onclick="deleteCellButtonPressed()">Delete</button>
+                <button id="new-button-cell" class="btn btn-default" onclick="newCellButtonPressed()">New</button>
             </div>
         </div>   
             
@@ -1404,7 +1176,7 @@
             
        <!-- New and Edit Cell Form -->                
        <div class="row" id="cells-edit" style="display: none;" align="center">
-       <div class="col-xs-12 form-group" id="av-im">
+       <div class="col-xs-12 form-group" id="av-im-cell">
             <div>
                 <label>Available Hardware Types</label>
             </div>
@@ -1430,13 +1202,13 @@
             <div class="row">
                     <!-- Available Implementation Checkboxes -->
                     <label for="one" style="margin: 10px">
-                     <input type="checkbox" id="hw1" value="1" onclick="refreshFields()"/>CPU</label>
+                     <input type="checkbox" id="hw1" value="1" onclick="refreshCellFields()"/>CPU</label>
                     <label for="two" style="margin: 10px">
-                     <input type="checkbox" id="hw2" value="2" style="margin: 10px 2px;" onclick="refreshFields()"/>CPU+GPU</label>
+                     <input type="checkbox" id="hw2" value="2" style="margin: 10px 2px;" onclick="refreshCellFields()"/>CPU+GPU</label>
                     <label for="three" style="margin: 10px">
-                     <input type="checkbox" id="hw3" value="3" onclick="refreshFields()"/>CPU+DFE</label>
+                     <input type="checkbox" id="hw3" value="3" onclick="refreshCellFields()"/>CPU+DFE</label>
                     <label for="four" style="margin: 10px">
-                     <input type="checkbox" id="hw4" value="4" onclick="refreshFields()"/>CPU+MIC</label>
+                     <input type="checkbox" id="hw4" value="4" onclick="refreshCellFields()"/>CPU+MIC</label>
             </div>
         </div>
        
@@ -1500,10 +1272,10 @@
        </div>            
             
        <!-- Save, Add and Cancel Buttons -->
-       <div id="button-group-3" align="right" id="prop-edit-buttons" style="display:none">
-           <button id="save-button" class="btn btn-default" onclick="saveButtonPressed()">Save</button>
-           <button id="add-button" class="btn btn-default" onclick="addButtonPressed()">Add</button>
-           <button id="cancel-button" class="btn btn-default" onclick="cancelButtonPressed()">Cancel</button>
+       <div id="button-group-3-cell" align="right" id="prop-edit-buttons" style="display:none">
+           <button id="save-button-cell" class="btn btn-default" onclick="saveCellButtonPressed()">Save</button>
+           <button id="add-button-cell" class="btn btn-default" onclick="addCellButtonPressed()">Add</button>
+           <button id="cancel-button-cell" class="btn btn-default" onclick="cancelCellButtonPressed()">Cancel</button>
        </div>       
             
                     
@@ -1531,13 +1303,13 @@
         <button id="next-button" class="btn btn-default" onclick="nextHwType()">></button>
     </div>
 
-    <!-- Save, Add and Cancel Buttons -->
-    <div id="button-group-2" align="right" id="prop-edit-buttons" style="display:none">
-        <button id="save-button" class="btn btn-default" onclick="saveButtonPressed()">Save</button>
-        <button id="add-button" class="btn btn-default" onclick="addButtonPressed()">Add</button>
-        <button id="cancel-button" class="btn btn-default" onclick="cancelButtonPressed()">Cancel</button>
+    <!-- Save, Add and Cancel Buttons 
+    <div id="button-group-2-cell" align="right" id="prop-edit-buttons" style="display:none">
+        <button id="save-cell-button" class="btn btn-default" onclick="saveCellButtonPressed()">Save</button>
+        <button id="add-cell-button" class="btn btn-default" onclick="addCellButtonPressed()">Add</button>
+        <button id="cancel-cell-button" class="btn btn-default" onclick="cancelCellButtonPressed()">Cancel</button>
     </div>
-             
+    -->  
 <br/><br/>
              
         
@@ -1545,7 +1317,7 @@
 <!-- Section 4: General Properties Section -->    
     <h2 class="sub-header" align="left">General Properties</h2>
         
-    <div class="row" id="prop-edit" align="center">
+    <div class="row" id="prop-edit-cell" align="center">
         <div class="col-xs-6 form-group">
             <div>
                 <label class="col-xs-12">Maximum Simulation Time</label>
@@ -1576,13 +1348,13 @@
             <label  style="font-family: Calibri; font-size:20px"> Click the button below to retrieve the desired JSON string: </label>
         <br>
 
-        <input type="text" id="export-field" class="form-control"  placeholder= "JSON String Output" width="500px" vspace="0" style="max-width:500px;margin:auto;margin-top:10px;text-align:center;">
+        <input type="text" id="export-cell-field" class="form-control"  placeholder= "JSON String Output" width="500px" vspace="0" style="max-width:500px;margin:auto;margin-top:10px;text-align:center;">
         <br>
-        <button id="export-button" class="btn btn-default" onclick="exportJSON()">Export Json</button>
+        <button id="export-cell-button" class="btn btn-default" onclick="exportCellDataJSON()">Export Json</button>
 
         <!-- Trick for exporting a file with a desired name and in the desired format -->
-        <button id="export-file-button" class="btn btn-default" onclick="exportJSONtoFile2()" download="file.txt">Export Json to File</button>
-        <a id="download-anchor" onclick="exportJSONFile()" download="CellData.json" style="display:none;">Hello!</a> 
+        <button id="export-cells-file-button" class="btn btn-default" onclick="exportCellsJSONtoFile2()" download="file.txt">Export Json to File</button>
+        <a id="download-cells-anchor" onclick="exportCellsJSONFile()" download="CellData.json" style="display:none;">Hello!</a> 
 
         <br><br>
         <hr/>
