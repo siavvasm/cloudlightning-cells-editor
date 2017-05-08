@@ -445,6 +445,9 @@
                     updateCellsList();
                     updateCellsTable();
                     
+                    //NEW:
+                    updateHardwareTypeList();
+                    
                 } else {
                     alert("Please provide a valid json string before clicking the Parse button!");
                 }     
@@ -465,6 +468,7 @@
                 
                 // 2. Update the table with the Cells data
                 updateCellsTable();
+                
             }
     
             /**
@@ -497,6 +501,9 @@
                       updateCellsList();
                       updateCellsTable();
                       
+                      //NEW:
+                      updateHardwareTypeList();
+                      
                       // 4. Clear the list with the files (to allow re-importation of the same file)
                       document.getElementById('fileToLoad-cell').value = "";
                       
@@ -520,6 +527,33 @@
                     }
                     cells[i]["HW_types"] = selected_types;
                 }
+            }
+    
+            //NEW:
+            function updateHardwareTypeList() {
+                console.log("INSIDE");
+                
+                // 0. Copy the cells list
+                var cells_list = JSON.parse(JSON.stringify(obj_cells["Cells"]));
+                
+                // 1. For each cell 
+                for (var i = 0; i < cells_list.length; i++) {
+                    
+                    // 1.1 Initialize the Available Hardware Types to the default values
+                    hw_types_per_cell[i] = JSON.parse(JSON.stringify(hw_types));
+                    
+                    // 1.2 Update their values based on each cell
+                    var temp_hw_types = JSON.parse(JSON.stringify(cells_list[i]["HW_types"]));
+                    for (var j = 0; j < temp_hw_types.length; j++) {
+                        
+                        // Get the ID of the Hardware Type
+                        var hw_id = temp_hw_types[j]["HW_type_ID"];
+                        
+                        // Update the equivalent entry
+                        hw_types_per_cell[i][hw_id - 1] = temp_hw_types[j];
+                    }
+                }
+        
             }
     
             /**
@@ -847,6 +881,9 @@
                     
                     // Add it to the list
                     cells[cells.length] = newCell;
+                               
+                    //NEW:
+                    hw_types_per_cell[hw_types_per_cell.length] = JSON.parse(JSON.stringify(hw_types));
                     
                     // 1. Mark the new Application as the selected one
                     selected_cell = cells.length;
@@ -981,6 +1018,9 @@
 
                         // 1. Remove the cell object from the array
                         cells.splice(selected_cell - 1, 1);
+                        
+                        //NEW:
+                        hw_types_per_cell.splice(selected_cell - 1, 1);
                         
                         // 2. Update the IDs of the remaining applications
                         for (var i = 0, len = cells.length; i < len; i++) {
