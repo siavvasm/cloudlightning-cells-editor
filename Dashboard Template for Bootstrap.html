@@ -1206,10 +1206,30 @@
             function editHardwareTypeButtonPressed() {
                 alert("EDIT!!!");
                 if ((selected_cell != 0) && (selected_hw != 0)) {
+                    // 0. Toggle the button groups
+                    document.getElementById("button-group").style.display = "none";
+                    document.getElementById("button-group-3-hw").style.display = "";
+                    
+                    // 1. Hide the Hardware Types Table and present the Hardware Type edit form
+                    document.getElementById("hw-types-table-full").setAttribute("style","display: none;");
+                    document.getElementById("hw-types-edit").setAttribute("style","");
+                    
+                    // Get the selected Hardware Type
+                    var selObj = hw_types_per_cell[selected_cell - 1][selected_hw - 1];
                     
                 } else {
                     alert("Please select a Hardware Type first.");
                 }
+            }
+    
+            function cancelHwButtonPressed() {
+                // 0. Toggle the button groups
+                document.getElementById("button-group").style.display = "";
+                document.getElementById("button-group-3-hw").style.display = "none";
+
+                // 1. Hide the Hardware Types Table and present the Hardware Type edit form
+                document.getElementById("hw-types-table-full").setAttribute("style","");
+                document.getElementById("hw-types-edit").setAttribute("style","display: none;");
             }
             
 </script>
@@ -1376,6 +1396,606 @@
         <button id="next-button" class="btn btn-default" onclick="nextHwType()">></button>
         <button id="edit-hw-type" class="btn btn-default" onclick="editHardwareTypeButtonPressed()">Edit</button>
     </div>
+        
+   <!-- New and Edit Cell Form -->                
+   <div class="row" id="hw-types-edit" style="display: none;" align="center">
+       
+      <br>
+        <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">Number of Servers</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-right" style="height:140px;">
+										<h3>Number of Servers</h3>
+										<p>Please define the number of servers that the current cell provides (e.g. 3000). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" type="number" min="0" placeholder="Number of Servers" style="text-align:center;" type="text" id="num-servers"/>
+            </div>
+        </div>
+           
+        <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">Number of Processing Units per Server</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-left" style="height:150px;">
+										<h3>Number of Processing Units per Server</h3>
+										<p>Provide the number of processing units that each server contains (e.g. 20). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" type="number" min="0" placeholder="Number of Processing Units per Server" style="text-align:center;" type="text" id="num-units"/>
+            </div>
+        </div> 
+       
+        <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">Memory per Server</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-right" style="height:140px;">
+										<h3>Memory per Server</h3>
+										<p>Please define the total memory that each server uses (e.g. 96). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" type="number" min="0" placeholder="Memory per Server" style="text-align:center;" type="text" id="mem-per-server"/>
+            </div>
+        </div>
+           
+        <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">Storage per Server</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-left" style="height:150px;">
+										<h3>Storage per Server</h3>
+										<p>Please define the total storage that each server uses (e.g. 40). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" type="number" min="0" placeholder="Storage per Server" style="text-align:center;" type="text" id="storage-per-server"/>
+            </div>
+        </div>
+    
+       <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">Proc Overcommitment ratio</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-right" style="height:140px;">
+										<h3>Proc Overcommitment ratio</h3>
+										<p>Please define the total memory that each server uses (e.g. 96). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" min="0" placeholder="Proc Overcommitment ratio" style="text-align:center;" type="text" id="proc-over-ratio"/>
+            </div>
+        </div>
+           
+        <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">Memory Overcommitment ratio</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-left" style="height:150px;">
+										<h3>Memory Overcommitment ratio</h3>
+										<p>Please define the total storage that each server uses (e.g. 40). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" min="0" placeholder="Memory Overcommitment ratio" style="text-align:center;" type="text" id="mem-over-ratio"/>
+            </div>
+        </div>
+       
+       <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">Compute Capability</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-right" style="height:140px;">
+										<h3>Compute Capability</h3>
+										<p>Please define the total memory that each server uses (e.g. 96). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" min="0" placeholder="Compute Capability" style="text-align:center;" type="text" id="compute-cap"/>
+            </div>
+        </div>
+           
+        <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">Accelerators</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-left" style="height:150px;">
+										<h3>Accelerators</h3>
+										<p>Please define the total storage that each server uses (e.g. 40). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" min="0" type="number" placeholder="Accelerators" style="text-align:center;" type="text" id="accelerators"/>
+            </div>
+        </div>
+       
+       <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">Total Number of Accelerators per Server</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-right" style="height:140px;">
+										<h3>Total Number of Accelerators per Server</h3>
+										<p>Please define the total memory that each server uses (e.g. 96). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" min="0" type="number" placeholder="Total Number of Accelerators per Server" style="text-align:center;" type="text" id="accelerators-per-server"/>
+            </div>
+        </div>
+           
+        <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">Accelerator Compute Capability</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-left" style="height:150px;">
+										<h3>Accelerator Compute Capability</h3>
+										<p>Please define the total storage that each server uses (e.g. 40). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" min="0" placeholder="Accelerator Compute Capability" style="text-align:center;" type="text" id="accelerator-comp-cap"/>
+            </div>
+        </div>
+       
+       <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">Type of CPU Model</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-right" style="height:140px;">
+										<h3>Type of CPU Model</h3>
+										<p>Please define the total memory that each server uses (e.g. 96). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" min="0" placeholder="Type of CPU Model" style="text-align:center;" type="text" id="type-of-cpu"/>
+            </div>
+        </div>
+           
+        <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">CPU Idle Power Consumption</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-left" style="height:150px;">
+										<h3>CPU Idle Power Consumption</h3>
+										<p>Please define the total storage that each server uses (e.g. 40). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" min="0" placeholder="CPU Idle Power Consumption" style="text-align:center;" type="text" id="acpu-idle-power-cons"/>
+            </div>
+        </div>
+       
+       
+       <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">CPU Max Power Consumption</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-right" style="height:140px;">
+										<h3>CPU Max Power Consumption</h3>
+										<p>Please define the total memory that each server uses (e.g. 96). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" min="0" placeholder="CPU Max Power Consumption" style="text-align:center;" type="text" id="cpu-max-power-cons"/>
+            </div>
+        </div>
+           
+        <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">CPU Number of Points for Interpolation</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-left" style="height:150px;">
+										<h3>CPU Number of Points for Interpolation</h3>
+										<p>Please define the total storage that each server uses (e.g. 40). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" min="0" placeholder="CPU Number of Points for Interpolation" style="text-align:center;" type="text" id="cpu-num-points-interpol"/>
+            </div>
+        </div>
+       
+       <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">CPU Utilization Bins</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-right" style="height:140px;">
+										<h3>CPU Utilization Bins</h3>
+										<p>Please define the total memory that each server uses (e.g. 96). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" min="0" placeholder="CPU Utilization Bins" style="text-align:center;" type="text" id="cpu-util-bin"/>
+            </div>
+        </div>
+           
+        <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">CPU Power Consuption</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-left" style="height:150px;">
+										<h3>CPU Power Consuption</h3>
+										<p>Please define the total storage that each server uses (e.g. 40). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" min="0" placeholder="CPU Power Consuption" style="text-align:center;" type="text" id="cpu-num-points-interpol"/>
+            </div>
+        </div>
+
+       <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">CPU Sleep Power Consumption</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-right" style="height:140px;">
+										<h3>CPU Sleep Power Consumption</h3>
+										<p>Please define the total memory that each server uses (e.g. 96). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" min="0" placeholder="CPU Sleep Power Consumption" style="text-align:center;" type="text" id="cpu-sleep-power-cons"/>
+            </div>
+        </div>
+           
+        <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">Type of Accelerator Model</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-left" style="height:150px;">
+										<h3>Type of Accelerator Model</h3>
+										<p>Please define the total storage that each server uses (e.g. 40). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" min="1" max="4" type="number" placeholder="Type of Accelerator Model" style="text-align:center;" type="text" id="type-acc-model"/>
+            </div>
+        </div>
+       
+       <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">Accelerator Idle Power Consumption</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-right" style="height:140px;">
+										<h3>Accelerator Idle Power Consumption</h3>
+										<p>Please define the total memory that each server uses (e.g. 96). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" min="0" placeholder="Accelerator Idle Power Consumption" style="text-align:center;" type="text" id="acc-idle-power-cons"/>
+            </div>
+        </div>
+           
+        <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">Accelerator Max Power Consumption</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-left" style="height:150px;">
+										<h3>Accelerator Max Power Consumption</h3>
+										<p>Please define the total storage that each server uses (e.g. 40). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" placeholder="Accelerator Max Power Consumption" style="text-align:center;" type="text" id="acc-max-power-cons"/>
+            </div>
+        </div>
+           
+        <div class="col-xs-6 form-group">
+            <div>
+                <label class="col-xs-12">Accelerator Sleep Power Consumption</label>
+            </div>
+            
+            <div class="features-left">
+                        <!-- Icon -->
+						<div class="icon-md icon-color">
+							<div class="cd-points-container points-enlarged points-pulsing">
+								<div class="cd-single-point visited">
+									<a class="cd-img-replace">More info</a>
+									<div class="cd-more-info cd-right" style="height:150px;">
+										<h3>Accelerator Sleep Power Consumption</h3>
+										<p>Please define the total storage that each server uses (e.g. 40). </p>
+										<a class="cd-close-info cd-img-replace">Close</a>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<!-- /End Icon -->
+            </div>
+            
+            <div class="col-xs-12 col-sm-12">
+                <input class="form-control" placeholder="Accelerator Sleep Power Consumption" style="text-align:center;" type="text" id="acc-sleep-power-cons"/>
+            </div>
+        </div>
+       </div>            
+            
+       <!-- Save, Add and Cancel Buttons -->
+       <div id="button-group-3-hw" align="right" style="display:none">
+           <button id="save-button-hw" class="btn btn-default" onclick="saveHwButtonPressed()">Save</button>
+           <button id="cancel-button-hw" class="btn btn-default" onclick="cancelHwButtonPressed()">Cancel</button>
+       </div>  
 
     <!-- Save, Add and Cancel Buttons 
     <div id="button-group-2-cell" align="right" id="prop-edit-buttons" style="display:none">
