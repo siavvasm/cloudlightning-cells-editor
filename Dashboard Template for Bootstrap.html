@@ -380,13 +380,17 @@
                 var reloaded = sessionStorage.getItem("reloaded");
                 var current_obj_cells = sessionStorage.getItem("current_obj_cells");
                 var current_cells = sessionStorage.getItem("current_cells");
-
+                
+                //NEW:
+                var current_hw_types_per_cell = sessionStorage.getItem("current_hw_types_per_cell");
+                
                 // 2. Check if the page is loaded after a refresh
                 if (reloaded == "true") {
                     
                     // 3. Read the previously stored contents
                     obj_cells = JSON.parse(current_obj_cells);
                     cells = JSON.parse(current_cells);
+                    hw_types_per_cell = JSON.parse(current_hw_types_per_cell);
                    
                     // 4. Refresh the view
                     if (cells.length != 0) {
@@ -411,6 +415,10 @@
                 var current_cells = JSON.stringify(cells);
                 sessionStorage.setItem("current_obj_cells", current_obj_cells);
                 sessionStorage.setItem("current_cells", current_cells);
+                
+                //NEW:
+                var current_hw_types_per_cell = JSON.stringify(hw_types_per_cell);
+                sessionStorage.setItem("current_hw_types_per_cell", current_hw_types_per_cell);
             }
 
             
