@@ -1208,6 +1208,7 @@
                 if ((selected_cell != 0) && (selected_hw != 0)) {
                     // 0. Toggle the button groups
                     document.getElementById("button-group").style.display = "none";
+                    document.getElementById("cells-buttons").style.display = "none";
                     document.getElementById("button-group-3-hw").style.display = "";
                     
                     // 1. Hide the Hardware Types Table and present the Hardware Type edit form
@@ -1216,21 +1217,259 @@
                     
                     // Get the selected Hardware Type
                     var selObj = hw_types_per_cell[selected_cell - 1][selected_hw - 1];
+                    console.log(selObj);
+                    
+                    // Update the values of the text fields
+                    document.getElementById("num-servers").value = selObj["Number of Servers"];
+                    document.getElementById("num-units").value = selObj["Number_of_Proc_Units_per_Server"];
+                    document.getElementById("mem-per-server").value = selObj["Memory_per_Server"];
+                    document.getElementById("storage-per-server").value = selObj["Storage_per_Server"];
+                    document.getElementById("proc-over-ratio").value = selObj["Proc_Overcommitment_ratio"];
+                    document.getElementById("mem-over-ratio").value = selObj["Memory_Overcommitment_ratio"];
+                    document.getElementById("compute-cap").value = selObj["Compute_Capability"];
+                    document.getElementById("accelerators").value = selObj["Accelerators"];
+                    document.getElementById("accelerators-per-server").value = selObj["Total_Number_of_Accelerators_per_Server"];
+                    document.getElementById("accelerator-comp-cap").value = selObj["Accelerator_Compute_Capability"];
+                    document.getElementById("type-of-cpu").value = selObj["Type_of_CPU_model"];
+                    document.getElementById("acpu-idle-power-cons").value = selObj["CPU Idle Power Consumption"];
+                    document.getElementById("cpu-max-power-cons").value = selObj["CPU Max Power Consumption"];
+                    document.getElementById("cpu-num-points-interpol").value = selObj["CPU_Number_of_Points_for_Interpolation"];
+                    document.getElementById("cpu-util-bin").value = selObj["CPU Utilization Bins"];
+                    document.getElementById("cpu-power-cons").value = selObj["CPU Power Consuption"];
+                    document.getElementById("cpu-sleep-power-cons").value = selObj["CPU Sleep Power Consumption"];
+                    document.getElementById("type-acc-model").value = selObj["Type of Accelerator Model"];
+                    document.getElementById("acc-idle-power-cons").value = selObj["Accelerator Idle Power Consumption"];
+                    document.getElementById("acc-max-power-cons").value = selObj["Accelerator Max Power Consumption"];
+                    document.getElementById("acc-sleep-power-cons").value = selObj["Accelerator Sleep Power Consumption"];
+                    
+                    if (selObj["HW_type_ID"] == 1) {
+                        document.getElementById("accelerators").readOnly = "true";
+                        document.getElementById("accelerators-per-server").readOnly = "true";
+                        document.getElementById("accelerator-comp-cap").readOnly = "true";
+                        document.getElementById("type-acc-model").readOnly = "true";
+                        document.getElementById("acc-idle-power-cons").readOnly = "true";
+                        document.getElementById("acc-max-power-cons").readOnly = "true";
+                        document.getElementById("acc-sleep-power-cons").readOnly = "true";
+                    } else {
+                        document.getElementById("accelerators").readOnly = "";
+                        document.getElementById("accelerators-per-server").readOnly = "";
+                        document.getElementById("accelerator-comp-cap").readOnly = "";
+                        document.getElementById("type-acc-model").readOnly = "";
+                        document.getElementById("acc-idle-power-cons").readOnly = "";
+                        document.getElementById("acc-max-power-cons").readOnly = "";
+                        document.getElementById("acc-sleep-power-cons").readOnly = "";
+                    }
                     
                 } else {
                     alert("Please select a Hardware Type first.");
                 }
             }
     
+            function saveHwButtonPressed() {
+                
+                // 1. Create a new Hardware Type object
+                var newHwType = {}
+                
+                // 2. Retrieve the values of the Application from the fields and set its ID
+                newHwType = createHwTypeFromFields();
+
+                
+                // 3. Check if it is valid and update the selected application
+                if (validNewHardwareType(newHwType)) {
+                    
+                    // Update the selected object
+                    hw_types_per_cell[selected_cell - 1][selected_hw - 1] = newHwType;
+                    
+                    // Update the Tables
+                    updateCellsTable();
+                    updateHwTypesTable();
+                    
+                    // Display the table
+                    cancelHwButtonPressed();
+                }
+            }
+    
+            function createHwTypeFromFields() {
+                
+                // 1. Create an empty hardware type
+                var newHwType = {};
+                
+                /*
+                 * 2. Add the values from the fields
+                 */
+                newHwType["HW_type_Name"] = hw_types_per_cell[selected_cell - 1][selected_hw - 1]["HW_type_Name"];
+                newHwType["HW_type_ID"] = hw_types_per_cell[selected_cell - 1][selected_hw - 1]["HW_type_ID"];
+                newHwType["Number of Servers"] = parseInt(document.getElementById("num-servers").value);
+                newHwType["Number_of_Proc_Units_per_Server"] = parseInt(document.getElementById("num-units").value);
+                newHwType["Memory_per_Server"] = parseInt(document.getElementById("mem-per-server").value);
+                newHwType["Storage_per_Server"] = parseInt(document.getElementById("storage-per-server").value);
+                newHwType["Proc_Overcommitment_ratio"] = parseInt(document.getElementById("proc-over-ratio").value);
+                newHwType["Memory_Overcommitment_ratio"] = parseInt(document.getElementById("mem-over-ratio").value);
+                newHwType["Compute_Capability"] = parseFloat(document.getElementById("compute-cap").value);
+                newHwType["Accelerators"] = parseInt(document.getElementById("accelerators").value);
+                newHwType["Total_Number_of_Accelerators_per_Server"] = parseInt(document.getElementById("accelerators-per-server").value);
+                newHwType["Accelerator_Compute_Capability"] = parseFloat(document.getElementById("accelerator-comp-cap").value);
+                newHwType["Type_of_CPU_model"] = parseInt(document.getElementById("type-of-cpu").value);
+                newHwType["CPU Idle Power Consumption"] = parseInt(document.getElementById("acpu-idle-power-cons").value);
+                newHwType["CPU Max Power Consumption"] = parseInt(document.getElementById("cpu-max-power-cons").value);
+                newHwType["CPU_Number_of_Points_for_Interpolation"] = parseInt(document.getElementById("cpu-num-points-interpol").value);
+                
+                var bins = document.getElementById("cpu-util-bin").value.split(',');
+                for (var i = 0; i < bins.length ; i++) {
+                    bins[i] = parseFloat(bins[i]);
+                }
+                
+                newHwType["CPU Utilization Bins"] = bins;
+                
+                var power = document.getElementById("cpu-power-cons").value.split(',');
+                for (var i = 0; i < power.length ; i++) {
+                    power[i] = parseFloat(power[i]);
+                }
+                
+                newHwType["CPU Power Consuption"] = power;
+                newHwType["CPU Sleep Power Consumption"] = parseInt(document.getElementById("cpu-sleep-power-cons").value);
+                newHwType["Type of Accelerator Model"] = parseInt(document.getElementById("type-acc-model").value);
+                newHwType["Accelerator Idle Power Consumption"] = parseInt(document.getElementById("acc-idle-power-cons").value);
+                newHwType["Accelerator Max Power Consumption"] = parseInt(document.getElementById("acc-max-power-cons").value);
+                newHwType["Accelerator Sleep Power Consumption"] = parseInt(document.getElementById("acc-sleep-power-cons").value);
+                
+                if (newHwType["HW_type_ID"] == 1) {
+                    newHwType["Accelerators"] = 0;
+                    newHwType["Total_Number_of_Accelerators_per_Server"] = 0;
+                    newHwType["Accelerator_Compute_Capability"] = 0;
+                    newHwType["Type of Accelerator Model"] = 0;
+                    newHwType["Accelerator Idle Power Consumption"] = 0;
+                    newHwType["Accelerator Max Power Consumption"] = 0;
+                    newHwType["Accelerator Sleep Power Consumption"] = 0;
+                }
+                
+
+                
+                // 3. Return the Application object
+                return newHwType;
+            }
+    
+            function validNewHardwareType(newHwType) {
+                // 1. Assume that the details are correct
+                valid = true;
+                errorMessage = "";
+                
+                // 2. Check the details
+                i = 1;
+                
+                if (isNaN(newHwType["Proc_Overcommitment_ratio"])) {
+                    valid = false;
+                    errorMessage += i + ". Please provide a numeric value at the Prc Overcommitment ratio field. \n";
+                    i++;
+                }
+                
+                if (isNaN(newHwType["Memory_Overcommitment_ratio"])) {
+                    valid = false;
+                    errorMessage += i + ". Please provide a numeric value at the Memory Overcommitment ratio field. \n";
+                    i++;
+                }
+                
+                if (isNaN(newHwType["Compute_Capability"])) {
+                    valid = false;
+                    errorMessage += i + ". Please provide a numeric value at the Compute Capability field. \n";
+                    i++;
+                }
+    
+                if (isNaN(newHwType["Accelerator_Compute_Capability"])) {
+                    valid = false;
+                    errorMessage += i + ". Please provide a numeric value at the Accelerator Compute Capability field. \n";
+                    i++;
+                }
+                
+                if (isNaN(newHwType["Type_of_CPU_model"])) {
+                    valid = false;
+                    errorMessage += i + ". Please provide a numeric value at the Type of CPU model field. \n";
+                    i++;
+                }
+                
+                if (isNaN(newHwType["CPU Idle Power Consumption"])) {
+                    valid = false;
+                    errorMessage += i + ". Please provide a numeric value at the CPU Idle Power Consumption field. \n";
+                    i++;
+                }
+                
+                if (isNaN(newHwType["CPU Max Power Consumption"])) {
+                    valid = false;
+                    errorMessage += i + ". Please provide a numeric value at the CPU Max Power Consumption field. \n";
+                    i++;
+                }
+                
+                if (isNaN(newHwType["CPU_Number_of_Points_for_Interpolation"])) {
+                    valid = false;
+                    errorMessage += i + ". Please provide a numeric value at the CPU Number of Points for Interpolation field. \n";
+                    i++;
+                }
+                
+                if (isNaN(newHwType["CPU Sleep Power Consumption"])) {
+                    valid = false;
+                    errorMessage += i + ". Please provide a numeric value at the CPU Sleep Power Consumption field. \n";
+                    i++;
+                }
+                
+                if (isNaN(newHwType["Type of Accelerator Model"])) {
+                    valid = false;
+                    errorMessage += i + ". Please provide a numeric value at the Type of Accelerator Model field. \n";
+                    i++;
+                }
+                
+                if (isNaN(newHwType["Accelerator Idle Power Consumption"])) {
+                    valid = false;
+                    errorMessage += i + ". Please provide a numeric value at the Accelerator Idle Power Consumption field. \n";
+                    i++;
+                }
+                
+                if (isNaN(newHwType["Accelerator Max Power Consumption"])) {
+                    valid = false;
+                    errorMessage += i + ". Please provide a numeric value at the Accelerator Max Power Consumption field. \n";
+                    i++;
+                }
+                
+                if (isNaN(newHwType["Accelerator Sleep Power Consumption"])) {
+                    valid = false;
+                    errorMessage += i + ". Please provide a numeric value at the Accelerator Sleep Power Consumption field. \n";
+                    i++;
+                }
+                
+                
+                // Check for NaNs
+                var editSection = document.getElementById("hw-types-edit");
+                var fields = editSection.getElementsByClassName("form-control");
+                
+                for (var k = 0; k < fields.length; k++) {
+                    if ((!fields[k].readOnly) && (fields[k].value == "")) {
+                        valid = false;
+                        errorMessage += i + ". Please complete all the fields of the form. \n";
+                        i++;
+                        break;
+                    }
+                }
+                
+                // 3. Check if there was at least one error
+                if (!valid) {
+                    alert(errorMessage);
+                }
+                
+                // 4. Return the outcome of the validation
+                return valid;
+            }
+    
             function cancelHwButtonPressed() {
                 // 0. Toggle the button groups
                 document.getElementById("button-group").style.display = "";
+                document.getElementById("cells-buttons").style.display = "";
                 document.getElementById("button-group-3-hw").style.display = "none";
 
                 // 1. Hide the Hardware Types Table and present the Hardware Type edit form
                 document.getElementById("hw-types-table-full").setAttribute("style","");
                 document.getElementById("hw-types-edit").setAttribute("style","display: none;");
             }
+    
+
             
 </script>
                 
@@ -1397,7 +1636,7 @@
         <button id="edit-hw-type" class="btn btn-default" onclick="editHardwareTypeButtonPressed()">Edit</button>
     </div>
         
-   <!-- New and Edit Cell Form -->                
+   <!-- New and Edit Hardware Type Form -->                
    <div class="row" id="hw-types-edit" style="display: none;" align="center">
        
       <br>
@@ -1846,7 +2085,7 @@
             </div>
             
             <div class="col-xs-12 col-sm-12">
-                <input class="form-control" min="0" placeholder="CPU Power Consuption" style="text-align:center;" type="text" id="cpu-num-points-interpol"/>
+                <input class="form-control" min="0" placeholder="CPU Power Consuption" style="text-align:center;" type="text" id="cpu-power-cons"/>
             </div>
         </div>
 
@@ -1878,7 +2117,7 @@
             </div>
         </div>
            
-        <div class="col-xs-6 form-group">
+        <div class="col-xs-6 form-group" id="acc-type">
             <div>
                 <label class="col-xs-12">Type of Accelerator Model</label>
             </div>
@@ -1902,11 +2141,11 @@
             </div>
             
             <div class="col-xs-12 col-sm-12">
-                <input class="form-control" min="1" max="4" type="number" placeholder="Type of Accelerator Model" style="text-align:center;" type="text" id="type-acc-model"/>
+                <input class="form-control" placeholder="Type of Accelerator Model" style="text-align:center;" type="text" id="type-acc-model"/>
             </div>
         </div>
        
-       <div class="col-xs-6 form-group">
+       <div class="col-xs-6 form-group" id="acc-idle">
             <div>
                 <label class="col-xs-12">Accelerator Idle Power Consumption</label>
             </div>
@@ -1934,7 +2173,7 @@
             </div>
         </div>
            
-        <div class="col-xs-6 form-group">
+        <div class="col-xs-6 form-group" id="acc-max-power">
             <div>
                 <label class="col-xs-12">Accelerator Max Power Consumption</label>
             </div>
@@ -1962,7 +2201,7 @@
             </div>
         </div>
            
-        <div class="col-xs-6 form-group">
+        <div class="col-xs-6 form-group" id="acc-sleep-power">
             <div>
                 <label class="col-xs-12">Accelerator Sleep Power Consumption</label>
             </div>
