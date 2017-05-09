@@ -1156,11 +1156,17 @@
                 if (max_sim_time == "" || update_interval == "") {
                     alert("Please define the desired min and max jobs per second before exporting the JSON.");
                     return false;
-                } else {
-                    obj_cells["Maximum Simulation Time"] = parseFloat(max_sim_time);
-                    obj_cells["Update Interval"] = parseFloat(update_interval);
-                    return true;
+                } 
+    
+                if (parseFloat(max_sim_time) < parseFloat(update_interval)) {
+                    alert("The update interval should not be greater than the maximum simulation time.");
+                    return false;
                 }
+                
+                obj_cells["Maximum Simulation Time"] = parseFloat(max_sim_time);
+                obj_cells["Update Interval"] = parseFloat(update_interval);
+                return true;
+                
             }
             
             /**
@@ -1319,14 +1325,18 @@
                     bins[i] = parseFloat(bins[i]);
                 }
                 
-                newHwType["CPU Utilization Bins"] = bins;
                 
+                newHwType["CPU Utilization Bins"] = bins;
+
                 var power = document.getElementById("cpu-power-cons").value.split(',');
                 for (var i = 0; i < power.length ; i++) {
                     power[i] = parseFloat(power[i]);
                 }
                 
+                
                 newHwType["CPU Power Consuption"] = power;
+
+                
                 newHwType["CPU Sleep Power Consumption"] = parseInt(document.getElementById("cpu-sleep-power-cons").value);
                 newHwType["Type of Accelerator Model"] = parseInt(document.getElementById("type-acc-model").value);
                 newHwType["Accelerator Idle Power Consumption"] = parseInt(document.getElementById("acc-idle-power-cons").value);
@@ -1433,6 +1443,28 @@
                     valid = false;
                     errorMessage += i + ". Please provide a numeric value at the Accelerator Sleep Power Consumption field. \n";
                     i++;
+                }
+                
+                if (newHwType["CPU Utilization Bins"].length != newHwType["CPU Power Consuption"].length ) {
+                    valid = false;
+                    errorMessage += i + ". Please provide the same number of values at the 'CPU Utilization Bins' and 'CPU Power Consuption' fileds. \n";
+                    i++;
+                }
+                
+                for (var j = 0; j < newHwType["CPU Utilization Bins"].length; j++) {
+                    if (isNaN(newHwType["CPU Utilization Bins"][j])) {
+                        valid = false;
+                        errorMessage += i + ". Please provide ensure that you provided all the desired values at the 'CPU Utilization Bins'field. \n";
+                        break;
+                    }
+                }
+                
+                for (var j = 0; j < newHwType["CPU Power Consuption"].length; j++) {
+                    if (isNaN(newHwType["CPU Power Consuption"][j])) {
+                        valid = false;
+                        errorMessage += i + ". Please provide ensure that you provided all the desired values at the 'CPU Power Consuption'field. \n";
+                        break;
+                    }
                 }
                 
                 
@@ -1612,7 +1644,7 @@
             
                     
 <!-- Section 3: Available Hardware Types Section -->  
-    <h2 class="sub-header" align="left">Available Hardware Types</h2>
+    <h2 class="sub-header" align="left">Cell's Available Hardware Types</h2>
             
     <div class="table-responsive">
         <table class="table table-striped" id="hw-types-table-full">
@@ -1651,7 +1683,7 @@
 							<div class="cd-points-container points-enlarged points-pulsing">
 								<div class="cd-single-point visited">
 									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-right" style="height:140px;">
+									<div class="cd-more-info cd-right" style="height:120px;">
 										<h3>Number of Servers</h3>
 										<p>Please define the number of servers that the current cell provides (e.g. 3000). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
@@ -1679,7 +1711,7 @@
 							<div class="cd-points-container points-enlarged points-pulsing">
 								<div class="cd-single-point visited">
 									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-left" style="height:150px;">
+									<div class="cd-more-info cd-left" style="height:130px;">
 										<h3>Number of Processing Units per Server</h3>
 										<p>Provide the number of processing units that each server contains (e.g. 20). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
@@ -1707,7 +1739,7 @@
 							<div class="cd-points-container points-enlarged points-pulsing">
 								<div class="cd-single-point visited">
 									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-right" style="height:140px;">
+									<div class="cd-more-info cd-right" style="height:120px;">
 										<h3>Memory per Server</h3>
 										<p>Please define the total memory that each server uses (e.g. 96). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
@@ -1735,7 +1767,7 @@
 							<div class="cd-points-container points-enlarged points-pulsing">
 								<div class="cd-single-point visited">
 									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-left" style="height:150px;">
+									<div class="cd-more-info cd-left" style="height:120px;">
 										<h3>Storage per Server</h3>
 										<p>Please define the total storage that each server uses (e.g. 40). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
@@ -1763,9 +1795,9 @@
 							<div class="cd-points-container points-enlarged points-pulsing">
 								<div class="cd-single-point visited">
 									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-right" style="height:140px;">
+									<div class="cd-more-info cd-right" style="height:130px;">
 										<h3>Proc Overcommitment ratio</h3>
-										<p>Please define the total memory that each server uses (e.g. 96). </p>
+										<p>Please define the overcommitment ratio of each processing unit of the available servers (e.g. 1). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
 									</div>
 								</div>
@@ -1791,9 +1823,9 @@
 							<div class="cd-points-container points-enlarged points-pulsing">
 								<div class="cd-single-point visited">
 									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-left" style="height:150px;">
+									<div class="cd-more-info cd-left" style="height:130px;">
 										<h3>Memory Overcommitment ratio</h3>
-										<p>Please define the total storage that each server uses (e.g. 40). </p>
+										<p>Please define the memory overcommitment ratio of the available servers (e.g. 1). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
 									</div>
 								</div>
@@ -1819,9 +1851,9 @@
 							<div class="cd-points-container points-enlarged points-pulsing">
 								<div class="cd-single-point visited">
 									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-right" style="height:140px;">
+									<div class="cd-more-info cd-right" style="height:130px;">
 										<h3>Compute Capability</h3>
-										<p>Please define the total memory that each server uses (e.g. 96). </p>
+										<p>Please define compute capability of the current hardware type (e.g. 385063.4). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
 									</div>
 								</div>
@@ -1847,9 +1879,9 @@
 							<div class="cd-points-container points-enlarged points-pulsing">
 								<div class="cd-single-point visited">
 									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-left" style="height:150px;">
+									<div class="cd-more-info cd-left" style="height:120px;">
 										<h3>Accelerators</h3>
-										<p>Please define the total storage that each server uses (e.g. 40). </p>
+										<p>Please define the number of the available accelerators (e.g. 1). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
 									</div>
 								</div>
@@ -1875,9 +1907,9 @@
 							<div class="cd-points-container points-enlarged points-pulsing">
 								<div class="cd-single-point visited">
 									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-right" style="height:140px;">
+									<div class="cd-more-info cd-right" style="height:150px;">
 										<h3>Total Number of Accelerators per Server</h3>
-										<p>Please define the total memory that each server uses (e.g. 96). </p>
+										<p>Please define the total number of accelerators that each server contains (e.g. 4). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
 									</div>
 								</div>
@@ -1903,9 +1935,9 @@
 							<div class="cd-points-container points-enlarged points-pulsing">
 								<div class="cd-single-point visited">
 									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-left" style="height:150px;">
+									<div class="cd-more-info cd-left" style="height:130px;">
 										<h3>Accelerator Compute Capability</h3>
-										<p>Please define the total storage that each server uses (e.g. 40). </p>
+										<p>Please define the compute capability of the available accelerator (e.g. 1347721.994). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
 									</div>
 								</div>
@@ -1931,9 +1963,9 @@
 							<div class="cd-points-container points-enlarged points-pulsing">
 								<div class="cd-single-point visited">
 									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-right" style="height:140px;">
+									<div class="cd-more-info cd-right" style="height:120px;">
 										<h3>Type of CPU Model</h3>
-										<p>Please define the total memory that each server uses (e.g. 96). </p>
+										<p>Please select the type of the desired CPU model (e.g. 1). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
 									</div>
 								</div>
@@ -1959,9 +1991,9 @@
 							<div class="cd-points-container points-enlarged points-pulsing">
 								<div class="cd-single-point visited">
 									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-left" style="height:150px;">
+									<div class="cd-more-info cd-left" style="height:120px;">
 										<h3>CPU Idle Power Consumption</h3>
-										<p>Please define the total storage that each server uses (e.g. 40). </p>
+										<p>Please define the power consuption of the CPU during the idle mode (e.g. 44.9). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
 									</div>
 								</div>
@@ -1972,7 +2004,7 @@
             </div>
             
             <div class="col-xs-12 col-sm-12">
-                <input class="form-control" min="0" placeholder="CPU Idle Power Consumption" style="text-align:center;" type="text" id="acpu-idle-power-cons"/>
+                <input class="form-control" min="0" placeholder="CPU Idle Power Consumption" style="text-align:center;" type="text" id="acpu-idle-power-cons" readOnly="true"/>
             </div>
         </div>
        
@@ -1988,9 +2020,9 @@
 							<div class="cd-points-container points-enlarged points-pulsing">
 								<div class="cd-single-point visited">
 									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-right" style="height:140px;">
+									<div class="cd-more-info cd-right" style="height:130px;">
 										<h3>CPU Max Power Consumption</h3>
-										<p>Please define the total memory that each server uses (e.g. 96). </p>
+										<p>Please define the maximum power consuption of the selected CPU (e.g. 269). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
 									</div>
 								</div>
@@ -2018,7 +2050,7 @@
 									<a class="cd-img-replace">More info</a>
 									<div class="cd-more-info cd-left" style="height:150px;">
 										<h3>CPU Number of Points for Interpolation</h3>
-										<p>Please define the total storage that each server uses (e.g. 40). </p>
+										<p>Please define the number of points that should be used for the interpolation (e.g. 40). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
 									</div>
 								</div>
@@ -2046,7 +2078,7 @@
 									<a class="cd-img-replace">More info</a>
 									<div class="cd-more-info cd-right" style="height:140px;">
 										<h3>CPU Utilization Bins</h3>
-										<p>Please define the total memory that each server uses (e.g. 96). </p>
+										<p>Please provide the utilization bins as numeric values separated by comma (e.g. 0, 0.1, 0.199, ...). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
 									</div>
 								</div>
@@ -2074,7 +2106,7 @@
 									<a class="cd-img-replace">More info</a>
 									<div class="cd-more-info cd-left" style="height:150px;">
 										<h3>CPU Power Consuption</h3>
-										<p>Please define the total storage that each server uses (e.g. 40). </p>
+										<p>Please provide the desired power consumption values for each utilization bin separated by comma (e.g. 44.9, 88.4, 105, ... ). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
 									</div>
 								</div>
@@ -2100,9 +2132,9 @@
 							<div class="cd-points-container points-enlarged points-pulsing">
 								<div class="cd-single-point visited">
 									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-right" style="height:140px;">
+									<div class="cd-more-info cd-right" style="height:120px;">
 										<h3>CPU Sleep Power Consumption</h3>
-										<p>Please define the total memory that each server uses (e.g. 96). </p>
+										<p>Please define the power consumption of the CPU during its sleep mode (e.g. 28). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
 									</div>
 								</div>
@@ -2128,9 +2160,9 @@
 							<div class="cd-points-container points-enlarged points-pulsing">
 								<div class="cd-single-point visited">
 									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-left" style="height:150px;">
+									<div class="cd-more-info cd-left" style="height:120px;">
 										<h3>Type of Accelerator Model</h3>
-										<p>Please define the total storage that each server uses (e.g. 40). </p>
+										<p>Please define the type of the selected accelerator model (e.g. 1). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
 									</div>
 								</div>
@@ -2156,9 +2188,9 @@
 							<div class="cd-points-container points-enlarged points-pulsing">
 								<div class="cd-single-point visited">
 									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-right" style="height:140px;">
+									<div class="cd-more-info cd-right" style="height:150px;">
 										<h3>Accelerator Idle Power Consumption</h3>
-										<p>Please define the total memory that each server uses (e.g. 96). </p>
+										<p>Please define the power consuption of the accelerator during its idle mode (e.g. 70). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
 									</div>
 								</div>
@@ -2184,9 +2216,9 @@
 							<div class="cd-points-container points-enlarged points-pulsing">
 								<div class="cd-single-point visited">
 									<a class="cd-img-replace">More info</a>
-									<div class="cd-more-info cd-left" style="height:150px;">
+									<div class="cd-more-info cd-left" style="height:140px;">
 										<h3>Accelerator Max Power Consumption</h3>
-										<p>Please define the total storage that each server uses (e.g. 40). </p>
+										<p>Please define the maximum power consuption of the accelerator (e.g. 100). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
 									</div>
 								</div>
@@ -2214,7 +2246,7 @@
 									<a class="cd-img-replace">More info</a>
 									<div class="cd-more-info cd-right" style="height:150px;">
 										<h3>Accelerator Sleep Power Consumption</h3>
-										<p>Please define the total storage that each server uses (e.g. 40). </p>
+										<p>Please define the power consuption of the accelerator during its sleep mode (e.g. 20). </p>
 										<a class="cd-close-info cd-img-replace">Close</a>
 									</div>
 								</div>
@@ -2257,7 +2289,7 @@
             </div>
             
             <div class="col-xs-12 col-sm-12">
-                <input class="form-control" type="number" min="0" placeholder="Maximum Simulation Time" style="text-align:center;" type="text" id="max-sim-time"/>
+                <input class="form-control" type="number" min="0" placeholder="Maximum Simulation Time (sec)" style="text-align:center;" type="text" id="max-sim-time"/>
             </div>
         </div>
            
@@ -2267,7 +2299,7 @@
             </div>
             
             <div class="col-xs-12 col-sm-12">
-                <input class="form-control" type="number" min="0" placeholder="Update Interval" style="text-align:center;" type="text" id="update-interval"/>
+                <input class="form-control" type="number" min="0" placeholder="Update Interval (sec)" style="text-align:center;" type="text" id="update-interval"/>
             </div>
         </div>         
 
